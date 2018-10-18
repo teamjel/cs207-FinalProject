@@ -1,6 +1,6 @@
 # Introduction
 Introduction: Differentiation is one of the most important operations in science.  Finding extrema of functions and determining zeros of functions are central to optimization.  Numerically solving differential equations forms a cornerstone of modern science and engineering and is intimately linked with predictive science.
-A very frequent occurrence in science requires the scientist to find the zeros of a function $f\left(x\right)$.  The input to the function is a $m-$ dimensional vector and the function returns an $n-$ dimensional vector.  We denote this mathematically as $f\left(x\right): \mathbb{R}^{m} \mapsto \mathbb{R}^{n}$.  This expression is read:  the function $f\left(x\right)$ maps $\mathbb{R}^{m}$ to $\mathbb{R}^{n}$.
+A very frequent occurrence in science requires the scientist to find the zeros of a function ![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29).  The input to the function is a m- dimensional vector and the function returns an n- dimensional vector.  We denote this mathematically as![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29): ![equation](http://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D%5E%7Bm%7D%20%5Cmapsto%20%5Cmathbb%7BR%7D%5E%7Bn%7D)$.  This expression is read:  the function ![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29) maps ![equation](http://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D%5E%7Bm%7D%20%5Cmapsto%20%5Cmathbb%7BR%7D%5E%7Bn%7D).
 In the introduction, we motivated the need for computational techniques to compute derivatives.  The focus in the introduction was on the finite difference method, but we also computed a symbolic derivative.  The finite difference approach is nice because it is quick and easy.  However, it suffers from accuracy and stability problems.  On the other hand, symbolic derivatives can be evaluated to machine precision, but can be costly to evaluate.  We'll have more to say about cost of symbolic differentiation later.
 Automatic differentiation (AD) overcomes both of these deficiencies.  It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode.
 
@@ -13,7 +13,7 @@ For functions that map ![equation](http://latex.codecogs.com/gif.latex?R%5Em) to
 
 ![equation](http://latex.codecogs.com/gif.latex?D_%7Bp%7Dx%20%3D%20%5Csum_%7Bj%3D1%7D%5E%7Bm%7D%7B%5Cdfrac%7B%5Cpartial%20x%7D%7B%5Cpartial%20x_%7Bj%7D%7Dp_%7Bj%7D%7D)
 
-where we take x as our m-dimensional input vector, and ![equation](http://latex.codecogs.com/gif.latex?p) as a seed vector that is all 0's except for a 1 at the dimension we desire to compute for the Jacobian, thus filling in each of the entries.
+where we take x as our m-dimensional input vector, and $p$ as a seed vector that is all 0's except for a 1 at the dimension we desire to compute for the Jacobian, thus filling in each of the entries.
 
 Finally, for the implementation in our software package, we take advantage of the construction of dual numbers, which is an algebra with the following construction:
 
@@ -82,9 +82,8 @@ Class Node:
     value: Value of the node
     der: Derivative/Gradients of the node
   Methods:
-    evalute(self): Returns the value and the derivative of the noe
-    set_value(self): Sets the value of the node
-    __str__(self): Returns the string representation of the node
+    evalute(self): Returns the value and the derivative of the Node
+    __str__(self): Returns the string representation of the Node
     __eq__(self, other):
     __neg__(self):
     __add__(self, other):
