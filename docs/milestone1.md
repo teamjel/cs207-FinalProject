@@ -75,8 +75,9 @@ Class Node:
     value: Value of the node
     der: Derivative/Gradients of the node
   Methods:
-    evalute(self): Returns the value and the derivative of the Node
-    __str__(self): Returns the string representation of the Node
+    evalute(self): Returns the value and the derivative of the noe
+    set_value(self): Sets the value of the node
+    __str__(self): Returns the string representation of the node
     __eq__(self, other):
     __neg__(self):
     __add__(self, other):
