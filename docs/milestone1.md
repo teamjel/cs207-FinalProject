@@ -1,14 +1,9 @@
 # Introduction
 Differentiation is one of the most important operations in science.  Finding extrema of functions and determining zeros of functions are central to optimization.  Numerically solving differential equations forms a cornerstone of modern science and engineering and is intimately linked with predictive science.
-<<<<<<< HEAD
-A very frequent occurrence in science requires the scientist to find the zeros of a function $f\left(x\right)$.  The input to the function is a $m-$ dimensional vector and the function returns an $n-$ dimensional vector.  We denote this mathematically as $f\left(x\right): \mathbb{R}^{m} \mapsto \mathbb{R}^{n}$.  This expression is read:  the function $f\left(x\right)$ maps $\mathbb{R}^{m}$ to $\mathbb{R}^{n}$.
-In the introduction, we motivated the need for computational techniques to compute derivatives.  The focus in the introduction was on the finite difference method, but we also computed a symbolic derivative.  The finite difference approach is nice because it is quick and easy.  However, it suffers from accuracy and stability problems.  On the other hand, symbolic derivatives can be evaluated to machine precision, but can be costly to evaluate.  We'll have more to say about cost of symbolic differentiation later.
-Automatic differentiation (AD) overcomes both of these deficiencies.  It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode.
-=======
+
 A very frequent occurrence in science requires the scientist to find the zeros of a function ![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29).  The input to the function is a m- dimensional vector and the function returns an n- dimensional vector.  We denote this mathematically as ![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29): ![equation](http://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D%5E%7Bm%7D%20%5Cmapsto%20%5Cmathbb%7BR%7D%5E%7Bn%7D).  This expression is read:  the function ![equation](http://latex.codecogs.com/gif.latex?f%5Cleft%28x%5Cright%29) maps ![equation](http://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D%5E%7Bm%7D%20%5Cmapsto%20%5Cmathbb%7BR%7D%5E%7Bn%7D).
 In CS207, we explored the finite difference method, but we also computed a symbolic derivative.  The finite difference approach is nice because it is quick and easy.  However, it suffers from accuracy and stability problems.  On the other hand, symbolic derivatives can be evaluated to machine precision, but can be costly to evaluate.
 Automatic differentiation (AD) overcomes both of these deficiencies. It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode. (Lecture 9)
->>>>>>> 889d0877ec753738c959243a4393cdb6bc78f7cf
 
 
 # Background
