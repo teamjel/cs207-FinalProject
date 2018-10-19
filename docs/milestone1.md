@@ -14,7 +14,7 @@ For functions that map ![equation](http://latex.codecogs.com/gif.latex?R%5Em) to
 
 ![equation](http://latex.codecogs.com/gif.latex?D_%7Bp%7Dx%20%3D%20%5Csum_%7Bj%3D1%7D%5E%7Bm%7D%7B%5Cdfrac%7B%5Cpartial%20x%7D%7B%5Cpartial%20x_%7Bj%7D%7Dp_%7Bj%7D%7D)
 
-where we take x as our m-dimensional input vector, and $p$ as a seed vector that is all 0's except for a 1 at the dimension we desire to compute for the Jacobian, thus filling in each of the entries.
+where we take x as our m-dimensional input vector, and ![equation](http://latex.codecogs.com/gif.latex?p) as a seed vector that is all 0's except for a 1 at the dimension we desire to compute for the Jacobian, thus filling in each of the entries.
 
 Finally, for the implementation in our software package, we take advantage of the construction of dual numbers, which is an algebra with the following construction:
 
@@ -84,10 +84,10 @@ The test suite will live in the `tests/` directory, which we will be maintain by
 We will be implementing the automatic differentiation by using `Node` instances and its subclasses, which are defined in `Operators` module. We can also visualize the algorithm using `Visualization` module.
 
 ## What are the core data structures?
-We will be using a tuple for our `Node` module as it core data structure. It will store both the value and the derivative/gradient of the node (we will be using a numpy array to store the gradients).
+We will be using a custom Dual Numbers implementation, which serves the purpose of both storing the value at each node and propagating the derivative through simplified calculations.
 
 ## What classes will you implement
-We will be implementing the `Node` class first. We will then extend the `Node` class for each operator, which will form a subclass. We also plan to implement a visualization class.
+We will be implementing the `Node` class first. We will then extend the `Node` class for each operator, which will form a subclass. Each node will contain overrides for all operations we support, and every operation will use a class method to return another node object as the result. In the creation of the node object, we will append a reference to previous nodes, and thus implicitly create the computational graph through this linking process. We also plan to implement a visualization class, utilizing the saved graphs.
 
 ## What method and name attributes will your classes have?
 
