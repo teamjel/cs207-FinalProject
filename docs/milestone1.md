@@ -1,5 +1,5 @@
 # Introduction
-Introduction: Differentiation is one of the most important operations in science.  Finding extrema of functions and determining zeros of functions are central to optimization.  Numerically solving differential equations forms a cornerstone of modern science and engineering and is intimately linked with predictive science.
+Differentiation is one of the most important operations in science.  Finding extrema of functions and determining zeros of functions are central to optimization.  Numerically solving differential equations forms a cornerstone of modern science and engineering and is intimately linked with predictive science.
 A very frequent occurrence in science requires the scientist to find the zeros of a function $f\left(x\right)$.  The input to the function is a $m-$ dimensional vector and the function returns an $n-$ dimensional vector.  We denote this mathematically as $f\left(x\right): \mathbb{R}^{m} \mapsto \mathbb{R}^{n}$.  This expression is read:  the function $f\left(x\right)$ maps $\mathbb{R}^{m}$ to $\mathbb{R}^{n}$.
 In the introduction, we motivated the need for computational techniques to compute derivatives.  The focus in the introduction was on the finite difference method, but we also computed a symbolic derivative.  The finite difference approach is nice because it is quick and easy.  However, it suffers from accuracy and stability problems.  On the other hand, symbolic derivatives can be evaluated to machine precision, but can be costly to evaluate.  We'll have more to say about cost of symbolic differentiation later.
 Automatic differentiation (AD) overcomes both of these deficiencies.  It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode.
@@ -21,7 +21,24 @@ Given any number x, rewrite it as: ![equation](http://latex.codecogs.com/gif.lat
 
 # How to Use AutoDiff
 
-How to Use PackageName: The user will obtain our package through TestPyPI. The user will first install the package then import it into their project file. To instantiate AD objects, the user should provide the type of function as an argument, an alpha, or coefficient for the function, and a third argument if appropriate for the function.
+The user will obtain our package through PyPI. The user will first install the package then import it into their project file.
+Example use:
+
+```Python
+import autodiff as AD
+
+x1 = AD.node()
+x2 = AD.node()
+
+y = AD.exp(x1) + x2
+
+x1.set_value(0)
+x2.set_value(3)
+
+print(y.evaluate) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
+```
+
+The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `evaluate` method.
 
 # Software Organization
 
@@ -74,6 +91,7 @@ We will be implementing the `Node` class first. We will then extend the `Node` c
 ## What method and name attributes will your classes have?
 
 `Node`
+
 The Node class is the core structure. It is the basis of all classes in `Operators` module. Below are the method and name attributes of the `Node` class.
 
 ```
