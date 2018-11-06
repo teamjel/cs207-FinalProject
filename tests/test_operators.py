@@ -222,10 +222,43 @@ def test_binary_errors():
     with pytest.raises(ValueError):
         i.eval({a:2, b:0})
 
-# Test composite function: y = (-a)^2 / cos(c) - sin(b) * 4^d + 1 '''
+# Test composite function: y = tan((-a)^2 / c) - sin(b) * log(4^d + 1) - cos(e)'''
 def test_composition_result():
-    pass
+    a = AD.Var()
+    b = AD.Var()
+    c = AD.Var()
+    d = AD.Var()
+    e = AD.Var()
+    y = AD.Tan((-a)**2/c) - AD.Sin(b) * AD.Log(AD.Exp(d, 4) + 1) - AD.Cos(e)
+    assert (round(y.eval({a: 2, b: 3, c: -1, d: 4, e:math.pi}), 2) == -5.20)
+    assert (y.differentiate(y) == 0)
+    # partial derivative dy/da: (2 * a * sec^2(a^2/c))/c
+    assert (round(y.differentiate(a), 2) == -9.36)
+    # partial derivative dy/db: (-cos(b)*log(1 + d^4))
+    assert (round(y.differentiate(b), 2) == 5.49)
+    # partial derivative dy/dc: -(a^2 sec^2(a^2/c))/c^2
+    assert (round(y.differentiate(c), 2) == -9.36)
+    # partial derivative dy/dd: -(4 d^3 sin(b))/(1 + d^4)
+    assert (round(y.differentiate(d), 2) == -0.14)
+    # partial derivative dy/de: sin(e)
+    assert (y.differentiate(e) == 0)
 
 def test_composition_errors():
+    a = AD.Var()
+    b = AD.Var()
+    c = AD.Var()
+    d = AD.Var()
+    e = AD.Var()
+    y = AD.Tan((-a)**2/c) - AD.Sin(b) * AD.Log(AD.Exp(d, 4) + 1) - AD.Cos(e)
+    with pytest.raises(Exception):
+        y.differentiate(y)
     with pytest.raises(TypeError):
-        roots.quad_roots("", "green", "hi")
+        y.eval("hi")
+    with pytest.raises(TypeError):
+        y.eval({a:1})
+    with pytest.raises(TypeError):
+        y.differentiate()
+    with pytest.raises(TypeError):
+        y.differentiate(z)
+    with pytest.raises(ValueError):
+        y.eval({a:2, b:0, c:0, d:5, e:3})
