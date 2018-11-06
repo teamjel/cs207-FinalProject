@@ -1,3 +1,6 @@
+import numpy as np
+from node import Node
+
 class Constant(Node):
   def __init__(self, value, name=None):
     super().__init__(value=value, name=name)
