@@ -5,6 +5,23 @@ A very frequent occurrence in science requires the scientist to find the zeros o
 In CS207, we explored the finite difference method, but we also computed a symbolic derivative.  The finite difference approach is nice because it is quick and easy.  However, it suffers from accuracy and stability problems.  On the other hand, symbolic derivatives can be evaluated to machine precision, but can be costly to evaluate.
 Automatic differentiation (AD) overcomes both of these deficiencies. It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode. (Lecture 9)
 
+# How to Use Package (TODO)
+To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command 'sudo easy_install virtualenv'. Next, go to the top level of your project directory and create a new virtual environment with the command 'virtualenv [name]'. To activate the environment, type the command '[name] env/bin/activate'. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install --index-url https://test.pypi.org/simple/ [TODO: name of package]'. You should see an output like so:
+
+Collecting [TODO]
+  Downloading https://test-files.pythonhosted.org/packages/.../[TODO]-0.0.1-py3-none-any.whl
+Installing collected packages: [TODO]
+Successfully installed [TODO]-0.0.1 
+
+Congratulations, you have installed [TODO]. To check that the installation was successful, run the python interpreter by typing 'python'. Import the module and do a simple operation such as printing out the name of the package like so:
+
+>>> import [TODO]
+>>> [TODO].name
+'[TODO]'
+
+If your screen looks like the above, you have successfully installed [TODO]!
+
+Include a basic demo for the user. Come up with a simple function to differentiate and walk the user through the steps needed to accomplish that task.
 
 # Background
 
@@ -20,26 +37,6 @@ Finally, for the implementation in our software package, we take advantage of th
 
 Given any number x, rewrite it as: ![equation](http://latex.codecogs.com/gif.latex?x%20%3D%20x&plus;%5Cepsilon%20x%27), where ![equation](http://latex.codecogs.com/gif.latex?%5Cepsilon) has the property such that ![equation](http://latex.codecogs.com/gif.latex?%5Cepsilon%5E2%20%3D%200). This construction is extremely useful because it enables the automatic computation of derivatives, provided the initial derivative at any given x upon instantiation, simply by expanding the formula and computing algebraically the equivalent dual number solution. For the purposes of our implementation of the forward mode of automatic differentiation, we will use dual numbers to compute the appropriate derivatives at each step.
 
-# How to Use AutoDiff
-
-The user will obtain our package through PyPI. The user will first install the package then import it into their project file.
-Example use:
-
-```Python
-import autodiff as AD
-
-x1 = AD.node()
-x2 = AD.node()
-
-y = AD.exp(x1) + x2
-
-x1.set_value(0)
-x2.set_value(3)
-
-print(y.evaluate) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
-```
-
-The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `evaluate` method.
 
 # Software Organization
 
@@ -79,6 +76,27 @@ The key modules and their basic functionalities are:
 * visualization.py: Visualizes the computational graph or table for forward automatic differentation.
 
 The test suite will live in the `tests/` directory, which we will be maintain by using  TravisCI for continuous integration and Coveralls for verifying test coverage. The package will be distributed through PyPI.
+
+# How to Use AutoDiff
+
+The user will obtain our package through PyPI. The user will first install the package then import it into their project file.
+Example use:
+
+```Python
+import autodiff as AD
+
+x1 = AD.node()
+x2 = AD.node()
+
+y = AD.exp(x1) + x2
+
+x1.set_value(0)
+x2.set_value(3)
+
+print(y.evaluate) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
+```
+
+The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `evaluate` method.
 
 # Implementation
 We will be implementing the automatic differentiation by using `Node` instances and its subclasses, which are defined in `Operators` module. We can also visualize the algorithm using `Visualization` module.
