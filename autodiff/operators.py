@@ -64,7 +64,7 @@ class Sqrt(Node):
     self._value = np.sqrt(self.node.value)
 
 class Sin(Node):
-  def __init__(self, node, name=""):
+  def __init__(self, node, name=None):
     super().__init__(name=name)
     self.node = node if isinstance(node, Node) else Constant(Node)
 
@@ -76,7 +76,7 @@ class Sin(Node):
     self._value = np.sin(self.node.value)
 
 class Cos(Node):
-  def __init__(self, node, name=""):
+  def __init__(self, node, name=None):
     super().__init__(name=name)
     self.node = node if isinstance(node, Node) else Constant(Node)
 
