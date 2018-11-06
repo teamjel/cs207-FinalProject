@@ -9,7 +9,7 @@ class Constant(Node):
     return self._value
 
 class Log(Node):
-  def __init__(self, node, base, name=None):
+  def __init__(self, node, base=np.e, name=None):
     super().__init__(name=name)
     self.node = node if isinstance(node, Node) else Constant(node)
     self.base = base if isinstance(base, Node) else Constant(base)
