@@ -21,7 +21,21 @@ Congratulations, you have installed [TODO]. To check that the installation was s
 
 If your screen looks like the above, you have successfully installed [TODO]!
 
-Include a basic demo for the user. Come up with a simple function to differentiate and walk the user through the steps needed to accomplish that task.
+Let's now go through a demo. Let us use automatic differentiation on the function sin(x).
+We first need to set up the variable and the equation. 
+
+x = AD.Var()
+y = AD.Sin(x)
+
+Next we need to assign a value to each variable during the evaluation call.
+
+print (y.evaluate({x: math.pi}))
+
+Lastly, we can now get the derivative of the function like so and specify the variable of the partial derivative:
+
+print (y.differentiate(x))
+
+Congratulations, you can now begin automatic differentiating away!
 
 # Background
 
