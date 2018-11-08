@@ -283,6 +283,7 @@ class Variable(Node):
 		if name is None or not isinstance(name, str):
 			raise ValueError('Name must be given for variable.')
 		self.name = name
+		self._variables[name] = self
 
 	def eval(self):
 		if self.value() is None:
