@@ -82,12 +82,13 @@ class Node():
 	def make_constant(cls, value):
 		return Constant(value)
 
-	def make_node(self, node, *values):
+	@classmethod
+	def make_node(cls, node, *values):
 		new_nodes = []
 		for value in values:
 			new = value
 			if not isinstance(new, Node):
-				new = self.make_constant(value)
+				new = cls.make_constant(value)
 			new_nodes.append(new)
 		node.set_children(*new_nodes)
 		node.update_variables()
@@ -336,11 +337,11 @@ class Negation(Node):
 
 	@node_decorate('evaluate')
 	def eval(self, values):
-		return -1*np.array(values)
+		return -1*np.array(values[0])
 
 	@node_decorate('differentiate')
 	def diff(self, values, diffs):
-		return -1*np.array(diffs)
+		return -1*np.array(diffs[0])
 
 class Subtraction(Node):
 
