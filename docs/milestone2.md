@@ -6,23 +6,23 @@ In CS207, we explored the finite difference method, but we also computed a symbo
 Automatic differentiation (AD) overcomes both of these deficiencies. It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode. (Lecture 9)
 
 # How to Use Package (TODO)
-To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command 'sudo easy_install virtualenv'. Next, go to the top level of your project directory and create a new virtual environment with the command 'virtualenv [name]'. To activate the environment, type the command '[name] env/bin/activate'. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install --index-url https://test.pypi.org/simple/ [TODO: name of package]'. You should see an output like so:
+To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command `sudo easy_install virtualenv`. Next, go to the top level of your project directory and create a new virtual environment with the command `virtualenv [name]`. To activate the environment, type the command `[name] env/bin/activate`. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install -i https://test.pypi.org/simple/ autodiff-jel'. You should see an output like so:
 
-Collecting [TODO]
-  Downloading https://test-files.pythonhosted.org/packages/.../[TODO]-0.0.1-py3-none-any.whl
-Installing collected packages: [TODO]
-Successfully installed [TODO]-0.0.1 
+Collecting `autodiff-jel`
+  Downloading https://test-files.pythonhosted.org/packages/.../autodiff-jel-0.0.1-py3-none-any.whl
+Installing collected packages: autodiff-
+Successfully installed autodiff-jel-0.0.1
 
-Congratulations, you have installed [TODO]. To check that the installation was successful, run the python interpreter by typing 'python'. Import the module and do a simple operation such as printing out the name of the package like so:
+Congratulations, you have installed autodiff-jel. To check that the installation was successful, run the python interpreter by typing 'python'. Import the module and do a simple operation such as printing out the name of the package like so:
 
->>> import [TODO]
->>> [TODO].name
-'[TODO]'
+>>> import autodiff as AD
+>>> AD.name
+'autodiff_jel'
 
-If your screen looks like the above, you have successfully installed [TODO]!
+If your screen looks like the above, you have successfully installed `autodiff`!
 
 Let's now go through a demo. Let us use automatic differentiation on the function sin(x).
-We first need to set up the variable and the equation. 
+We first need to set up the variable and the equation.
 
 x = AD.Var()
 y = AD.Sin(x)
@@ -164,7 +164,7 @@ Elementary functions including trigonometric functions, logarithmic functions, a
 - Reverse Mode
 - Visualization
 - Matrix
-- 
+-
 
 
 
