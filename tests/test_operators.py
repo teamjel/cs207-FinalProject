@@ -1,264 +1,275 @@
 import pytest
 import math
-import autodiff as AD
+from autodiff.node import *
+from autodiff.operators import *
 
 # Test constant.
 def test_constant_results():
-    const = AD.Constant()
-    assert (const.differentiate() == 0)
-    assert (const.get_value() == const.val)
-    assert (const.eval() == const.val)
+    const = Node.make_constant(4)
+    assert (const.derivative() == 0)
+    assert (const.value() == 4)
+    assert (const.eval() == 4)
+    const.set_value(1)
+    assert (const.derivative() == 0)
+    assert (const.value() == 1)
+    assert (const.eval() == 1)
 
-def test_constant_types():
-    const = AD.Constant()
-    with pytest.raises(TypeError):
-        const.differentiate("hi")
-    with pytest.raises(TypeError):
-        const.eval("hi")
+def test_constant_errors():
+    const = Node.make_constant(4)
+    assert (isinstance(const, Constant))
+    # with pytest.raises(TypeError):
+    #     const.derivative("hi")
+    with pytest.raises(AttributeError):
+        const(4)
 
-def test_constant_zerocoeff():
-    pass        
-    
 # Test unary operators: negation, log, sin, cos, tan, power, exponential.
 def test_unary_result():
     # function: a, derivative: 1
-    a = AD.Var()
-    assert (a.eval(3) == 3)
-    assert (a.differentiate(a) == 1)
+    a = Variable("a")
+    assert (a(a = 3).value() == 3)
+    assert (a.derivative() == 1)
     # function: -b, derivative: -1
-    b = AD.Var()
+    b = Variable("b")
     negB = -b
-    assert (negB.eval(3) == -3)
-    assert (negB.differentiate(b) == -1)
+    assert (negB(b = 3).value() == -3)
+    assert (negB.derivative()["b"] == -1)
     # function: log(c), derivative: 1/c
-    c = AD.Var()
-    logC = AD.Log(c)
-    assert (logC.eval(math.exp(1)) == 1)
-    assert (round(logC.differentiate(c), 2) == round(1/math.exp(1), 2))
-    assert (round(logC.eval(2), 2) == 0.69)
-    assert (round(logC.differentiate(c), 2) == 0.50)
+    c = Variable("c")
+    logC = log(c)
+    assert (int(logC(c = math.exp(1)).value()) == 1)
+    assert (round(logC.derivative()["c"], 2) == round(1/math.exp(1), 2))
+    assert (round(logC(c = 2).value(), 2) == 0.69)
+    assert (round(logC.derivative()["c"], 2) == 0.50)
+    log10C = log(c, 10)
+    assert (round(log10C(c = 2).value(), 2) == 0.30)
+    assert (round(log10C.derivative()["c"], 2) == 0.22)
     # function: sin(d), derivative: cos(d)
-    d = AD.Var()
-    sinD = AD.Sin(d)
-    assert (sinD.eval(math.pi) == 0)
-    assert (sinD.differentiate(d) == -1)
-    assert (sinD.eval(math.pi/2) == 1)
-    assert (sinD.differentiate(d) == 0)
+    d = Variable("d")
+    sinD = sin(d)
+    assert (int(sinD(d = math.pi).value()) == 0)
+    assert (int(sinD.derivative()["d"]) == -1)
+    assert (int(sinD(d = math.pi/2).value()) == 1)
+    assert (int(sinD.derivative()["d"]) == 0)
     # function: cos(d), derivative: -sin(d)
-    e = AD.Var()
-    cosE = AD.Cos(e)
-    assert (cosE.eval(math.pi) == -1)
-    assert (cosE.differentiate(e) == 0)
-    assert (cosE.eval(math.pi/2) == 0)
-    assert (cosE.differentiate(e) == -1)
-    # function: tan(f), derivative: sec^2(f)
-    f = AD.Var()
-    tanF = AD.Tan(f)
-    assert (tanF.eval(math.pi) == 0)
-    assert (tanF.differentiate(f) == 1)
+    e = Variable("e")
+    cosE = cos(e)
+    assert (int(cosE(e = math.pi).value()) == -1)
+    assert (int(cosE.derivative()["e"]) == 0)
+    assert (int(cosE(e = math.pi/2).value()) == 0)
+    assert (int(cosE.derivative()["e"]) == -1)
     # function: g**3, derivative: 3*x^2
-    g = AD.Var()
+    g = Variable("g")
     powerG = g**3
-    assert (powerG.eval(3) == 27)
-    assert (powerG.differentiate(g) == 27)
-    assert (powerG.eval(2) == 8)
-    assert (powerG.differentiate(g) == 12)
-    # function: 3^h, derivative: 3^h*log(3)
-    h = AD.Var()
-    expH = AD.Exp(h, 3)
-    assert (expH.eval(2) == 9)
-    assert (round(expH.differentiate(h), 2) == 9.89)
+    assert (powerG(g = 3).value() == 27)
+    assert (powerG.derivative()["g"] == 27)
+    assert (powerG(g = 2).value() == 8)
+    assert (powerG.derivative()["g"] == 12)
+    # function: e^h, derivative: e^h
+    h = Variable("h")
+    expH = exp(h)
+    assert (round(expH(h = 2).value(), 2) == 7.39)
+    assert (round(expH.derivative()["h"], 2) == 7.39)
     
 def test_unary_errors():
     # function: a, derivative: 1
-    a = AD.Var()
+    a = Variable("a")
+    assert (isinstance(a, Variable))
     # Error when differentiating before evaluating [TODO: which error?]
-    with pytest.raises(Exception):
-        a.differentiate(a)
+    # with pytest.raises(NoValueError):
+    #     a.derivative()
+    # with pytest.raises(TypeError):
+    #     a(a = "hi")
     with pytest.raises(TypeError):
-        a.eval("hi")
+        a(b = 3)
     with pytest.raises(TypeError):
-        a.differentiate()
+        a.derivative(a)
     # function: -b, derivative: -1
-    b = AD.Var()
+    b = Variable("b")
     negB = -b
-    with pytest.raises(Exception):
-        negB.differentiate(b)
+    # with pytest.raises(NoValueError):
+    #     negB.derivative()
     with pytest.raises(TypeError):
-        negB.eval("hi")
+        negB(b = "hi")
     with pytest.raises(TypeError):
-        negB.differentiate()
+        negB(c = 3)
+    with pytest.raises(TypeError):
+        negB.derivative(b)
     # function: log(c), derivative: 1/c
-    c = AD.Var()
-    logC = AD.Log(c)
-    with pytest.raises(Exception):
-        logC.differentiate(c)
+    c = Variable("c")
+    logC = log(c)
+    # with pytest.raises(NoValueError):
+    #     logC.derivative()
     with pytest.raises(TypeError):
-        logC.eval("hi")
+        logC(c = "hi")
     with pytest.raises(TypeError):
-        logC.differentiatev()
-    with pytest.raises(ValueError):
-        logC.eval(0)
+        logC(d = 5)
+    with pytest.raises(TypeError):
+        logC.derivative(c)
+    with pytest.raises(ZeroDivisionError):
+        logC(c = 0)
     # function: sin(d), derivative: cos(d)
-    d = AD.Var()
-    sinD = AD.Sin(d)
-    with pytest.raises(Exception):
-        sinD.differentiate(d)
+    d = Variable("d")
+    sinD = sin(d)
     with pytest.raises(TypeError):
-        sinD.eval("hi")
+        sinD.derivative(d)
     with pytest.raises(TypeError):
-        sinD.differentiate()
+        sinD(d = "hi")
+    with pytest.raises(TypeError):
+        sinD(e = 5)
+    # with pytest.raises(NoValueError):
+    #     sinD.derivative()
     # function: cos(d), derivative: -sin(d)
-    e = AD.Var()
-    cosE = AD.Cos(e)
-    with pytest.raises(Exception):
-        cosE.differentiate(e)
+    e = Variable("e")
+    cosE = cos(e)
     with pytest.raises(TypeError):
-        cosE.eval("hi")
+        cosE.derivative(e)
     with pytest.raises(TypeError):
-        cosE.differentiate()
-    # function: tan(f), derivative: sec^2(f)
-    f = AD.Var()
-    tanF = AD.Tan(f)
-    with pytest.raises(Exception):
-        tanF.differentiate(f)
+        cosE(e = "hi")
     with pytest.raises(TypeError):
-        tanF.eval("hi")
-    with pytest.raises(TypeError):
-        tanF.differentiate()
-    with pytest.raises(ValueError):
-        tanF.eval(math.pi/2)
+        cosE(f = 4)
+    # with pytest.raises(NoValueError):
+    #     cosE.derivative()
     # function: g**3, derivative: 3*x^2
-    g = AD.Var()
+    g = Variable("g")
     powerG = g**3
     with pytest.raises(Exception):
-        powerG.differentiate(g)
+        powerG.derivative(g)
     with pytest.raises(TypeError):
-        powerG.eval("hi")
+        powerG(g = "hi")
     with pytest.raises(TypeError):
-        powerG.differentiate()
+        powerG(f = 4)
+    # with pytest.raises(NoValueError):
+    #     powerG.derivative()
     # function: 3^h, derivative: 3^h*log(3)
-    h = AD.Var()
-    expH = AD.Exp(h, 3)
+    h = Variable("h")
+    expH = exp(3)
     with pytest.raises(Exception):
-        expH.differentiate(h)
+        expH.derivative(h)
     with pytest.raises(TypeError):
-        expH.eval("hi")
+        expH(h = "hi")
     with pytest.raises(TypeError):
-        expH.differentiate()
+        expH(i = 3)
+    # with pytest.raises(NoValueError):
+    #     expH.derivative()
 
 # Test binary operators: addition, subtraction, multiplication, division. 
 def test_binary_result():
-    a = AD.Var()
-    b = AD.Var()
+    a = Variable("a")
+    b = Variable("b")
     c = a + b
-    assert (c.eval({a: 2, b: 3}) == 5)
-    assert (c.differentiate(c) == 0)
-    assert (c.differentiate(a) == 1)
-    assert (c.differentiate(b) == 1)
+    assert (c(a = 2, b = 3).value() == 5)
+    assert (c.derivative()["a"] == 1)
+    assert (c.derivative()["b"] == 1)
     e = a - b
-    assert (e.eval({a: 2, b: 3}) == -1)
-    assert (e.differentiate(e) == 0)
-    assert (e.differentiate(a) == 1)
-    assert (e.differentiate(b) == -1)
+    assert (e(a = 2, b = 3).value() == -1)
+    assert (e.derivative()["a"] == 1)
+    assert (e.derivative()["b"] == -1)
     g = a * b 
-    assert (g.eval({a: 3, b: 2}) == 6)
-    assert (g.differentiate(g) == 0)
-    assert (g.differentiate(a) == 2)
-    assert (g.differentiate(b) == 3)
+    assert (g(a = 3, b = 2).value() == 6)
+    assert (g.derivative()["a"] == 2)
+    assert (g.derivative()["b"] == 3)
     i = a / b 
-    assert (i.eval({a: 6, b: 2}) == 3)
-    assert (i.differentiate(i) == 0)
-    assert (math.round(i.differentiate(a), 2) == 0.50)
-    assert (math.round(i.differentiate(b), 2) == -1.50)
+    assert (int(i(a = 6, b = 2).value()) == 3)
+    assert (round(i.derivative()["a"], 2) == 0.50)
+    assert (round(i.derivative()["b"], 2) == -1.50)
 
 def test_binary_errors():
-    a = AD.Var()
-    b = AD.Var()
+    a = Variable("a")
+    b = Variable("b")
     c = a + b
-    with pytest.raises(Exception):
-        c.differentiate(c)
     with pytest.raises(TypeError):
-        c.eval("hi")
+        c.derivative(c)
     with pytest.raises(TypeError):
-        c.eval(1)
+        c(a = "hi", b = 2)
     with pytest.raises(TypeError):
-        c.differentiate()
+        c(b = 2)
     with pytest.raises(TypeError):
-        c.differentiate(z)
+        c(a = 2, b = 3, c = 1)
+    # with pytest.raises(NoValueError):
+    #     c.derivative()
+    with pytest.raises(UnboundLocalError):
+        c(2,3)
     e = a - b
-    with pytest.raises(Exception):
-        e.differentiate(e)
     with pytest.raises(TypeError):
-        e.eval("hi")
+        e.derivative(e)
     with pytest.raises(TypeError):
-        e.eval(1)
+        e(a = "hi", b = 2)
     with pytest.raises(TypeError):
-        e.differentiate()
+        e(b = 2)
     with pytest.raises(TypeError):
-        e.differentiate(z)
+        e(a = 2, b = 3, c = 1)
+    # with pytest.raises(NoValueError):
+    #     e.derivative()
+    with pytest.raises(UnboundLocalError):
+        e(2,3)
     g = a * b 
-    with pytest.raises(Exception):
-        g.differentiate(g)
     with pytest.raises(TypeError):
-        g.eval("hi")
+        g.derivative(g)
     with pytest.raises(TypeError):
-        g.eval(1)
+        g(a = "hi", b = 2)
     with pytest.raises(TypeError):
-        g.differentiate()
+        g(b = 2)
     with pytest.raises(TypeError):
-        g.differentiate(z)
+        g(a = 2, b = 3, c = 1)
+    # with pytest.raises(NoValueError):
+    #     g.derivative()
+    with pytest.raises(UnboundLocalError):
+        g(2,3)
     i = a / b 
-    with pytest.raises(Exception):
-        i.differentiate(i)
     with pytest.raises(TypeError):
-        i.eval("hi")
+        i.derivative(i)
     with pytest.raises(TypeError):
-        i.eval(1)
+        i(a = "hi", b = 2)
     with pytest.raises(TypeError):
-        i.differentiate()
+        i(b = 1)
     with pytest.raises(TypeError):
-        i.differentiate(z)
-    with pytest.raises(ValueError):
-        i.eval({a:2, b:0})
+        i(a = 2, b = 3, c = 1)
+    # with pytest.raises(ZeroDivisionError):
+    #     i(a = 2, b = 0)
+    # with pytest.raises(NoValueError):
+    #     i.derivative()
+    with pytest.raises(UnboundLocalError):
+        i(2,3)
 
-# Test composite function: y = tan((-a)^2 / c) - sin(b) * log(4^d + 1) - cos(e)'''
+# Test composite function: y = cos((-a)^2 / c) - 4*sin(b) * log_10(e^d + 1)'''
 def test_composition_result():
-    a = AD.Var()
-    b = AD.Var()
-    c = AD.Var()
-    d = AD.Var()
-    e = AD.Var()
-    y = AD.Tan((-a)**2/c) - AD.Sin(b) * AD.Log(AD.Exp(d, 4) + 1) - AD.Cos(e)
-    assert (round(y.eval({a: 2, b: 3, c: -1, d: 4, e:math.pi}), 2) == -5.20)
-    assert (y.differentiate(y) == 0)
-    # partial derivative dy/da: (2 * a * sec^2(a^2/c))/c
-    assert (round(y.differentiate(a), 2) == -9.36)
-    # partial derivative dy/db: (-cos(b)*log(1 + d^4))
-    assert (round(y.differentiate(b), 2) == 5.49)
-    # partial derivative dy/dc: -(a^2 sec^2(a^2/c))/c^2
-    assert (round(y.differentiate(c), 2) == -9.36)
-    # partial derivative dy/dd: -(4 d^3 sin(b))/(1 + d^4)
-    assert (round(y.differentiate(d), 2) == -0.14)
-    # partial derivative dy/de: sin(e)
-    assert (y.differentiate(e) == 0)
+    a = Variable("a")
+    b = Variable("b")
+    c = Variable("c")
+    d = Variable("d")
+    y = cos((-a)**2/c) - 4*sin(b) * log(exp(d) + 1, 10)
+    assert (round(y(a = 2, b = 3, c = -1, d = 4).value(), 2) == -1.64)
+    # partial derivative dy/da: -(2 a sin(a^2/c))/c
+    assert (round(y.derivative()["a"], 2) == 3.03)
+    # partial derivative dy/db: -(4 cos(b) log(1 + e^d))/log(10)
+    assert (round(y.derivative()["b"], 2) == 6.91)
+    # partial derivative dy/dc: (a^2 sin(a^2/c))/c^2
+    assert (round(y.derivative()["c"], 2) == 3.03)
+    # partial derivative dy/dd: -(4 e^d log(e) sin(b))/((1 + e^d) log(10))
+    assert (round(y.derivative()["d"], 2) == -0.24)
 
 def test_composition_errors():
-    a = AD.Var()
-    b = AD.Var()
-    c = AD.Var()
-    d = AD.Var()
-    e = AD.Var()
-    y = AD.Tan((-a)**2/c) - AD.Sin(b) * AD.Log(AD.Exp(d, 4) + 1) - AD.Cos(e)
-    with pytest.raises(Exception):
-        y.differentiate(y)
+    a = Variable("a")
+    b = Variable("b")
+    c = Variable("c")
+    d = Variable("d")
+    e = Variable("e")
+    y = cos((-a)**2/c) - 4*sin(b) * log(exp(d) + 1, 10)
     with pytest.raises(TypeError):
-        y.eval("hi")
+        y.derivative(y)
     with pytest.raises(TypeError):
-        y.eval({a:1})
+        y(a = "hi", b = 3, c = -1, d = 4)
     with pytest.raises(TypeError):
-        y.differentiate()
+        y(a = 2, b = "hi", c = -1, d = 4)
     with pytest.raises(TypeError):
-        y.differentiate(z)
-    with pytest.raises(ValueError):
-        y.eval({a:2, b:0, c:0, d:5, e:3})
+        y(a = 2, b = 3, c = "hi", d = 4)
+    with pytest.raises(TypeError):
+        y(a = 2, b = 3, c = -1, d = "hi")
+    with pytest.raises(TypeError):
+        y(a = 2, b = 3, c = -1)
+    with pytest.raises(UnboundLocalError):
+        y(2, 3,-1, 4)
+    # with pytest.raises(NoValueError):
+    #     y.derivative()
+    # with pytest.raises(ZeroDivisionError):
+    #     y(a = 2, b = 0, c = 0, d = 5)
