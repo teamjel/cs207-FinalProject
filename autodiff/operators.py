@@ -22,7 +22,7 @@ class Log(Node):
     h_prime = (base_diff / base_value)
     return (g_prime * h - g * h_prime) / (h ** 2)
 
-def log(node, base):
+def log(node, base=np.e):
   return Node.make_node(Log(), node, base)
 
 class Exp(Node):
@@ -36,7 +36,7 @@ class Exp(Node):
 
   @node_decorate('differentiate')
   def diff(self, values, diffs):
-    return values[0] * diffs[0]
+    return np.exp(values[0]) * diffs[0]
 
 def exp(node):
   return Node.make_node(Exp(), node)
