@@ -1,5 +1,5 @@
 import numpy as np
-from node import Node
+from .node import Node
 
 class Constant(Node):
   def __init__(self, value, name=None):
@@ -29,7 +29,7 @@ class Log(Node):
     self._value = np.log(self.node.value) / np.log(self.base.value)
 
 class Neg(Node):
-  def __init__(self, node, name=None)
+  def __init__(self, node, name=None):
     super().__init__(name=name)
     self.node = node
 
@@ -56,8 +56,7 @@ class Sqrt(Node):
     super().__init__(name=name)
     self.node = node if isinstance(node, Node) else Constant(node)
 
-  def diff(self, name):
-    self.eval()
+  def diff(self, values):
     return 1/(2 * self.val) * self.node.diff(name)
 
   def eval(self):
