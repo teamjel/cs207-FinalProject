@@ -14,8 +14,8 @@ class Log(Node):
 
   @node_decorate('differentiate')
   def diff(self, values, diffs):
-    base_value, node_value = values
-    base_diff, node_diff = diffs
+    node_value, base_value = values
+    node_diff, base_diff = diffs
     g = np.log(node_value)
     g_prime = (node_diff / node_value)
     h = np.log(base_value)
