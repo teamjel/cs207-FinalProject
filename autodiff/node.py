@@ -55,8 +55,9 @@ class node_decorate():
 			""" Wrapper for updating node derivatives. """
 			@wraps(fn)
 			def wrapper(self):
-				values = [child.diff() for child in self.children]
-				result = fn(self, values)
+				values = [child.eval() for child in self.children]
+				diffs = [child.diff() for child in self.children]
+				result = fn(self, values, diffs)
 				self.set_derivative(result)
 				return result
 			return wrapper
@@ -125,6 +126,22 @@ class Node():
 
 	def __rsub__(self, value):
 		node = self.make_node(Subtraction(), value, self)
+		return node
+
+	def __mul__(self, value):
+		node = self.make_node(Multiplication(), self, value)
+		return node
+
+	def __rmul__(self, value):
+		node = self.make_node(Multiplication(), value, self)
+		return node
+
+	def __truediv__(self, value):
+		node = self.make_node(Division(), self, value)
+		return node
+
+	def __rtruediv__(self, value):
+		node = self.make_node(Division(), value, self)
 		return node
 
 	""" ATTRIBUTES
@@ -229,12 +246,12 @@ class Node():
 
 	# Uncomment when overriding:
 	# @node_decorate('evaluate')
-	def eval(self):
+	def eval(self, values):
 		raise NotImplementedError
 
 	# Uncomment when overriding:
 	# @node_decorate('differentiate')
-	def diff(self):
+	def diff(self, values, diffs):
 		raise NotImplementedError
 
 
@@ -307,8 +324,8 @@ class Addition(Node):
 		return np.sum(values)
 
 	@node_decorate('differentiate')
-	def diff(self, values):
-		return np.sum(values)
+	def diff(self, values, diffs):
+		return np.sum(diffs)
 
 
 class Negation(Node):
@@ -322,8 +339,8 @@ class Negation(Node):
 		return -1*np.array(values)
 
 	@node_decorate('differentiate')
-	def diff(self, values):
-		return -1*np.array(values)
+	def diff(self, values, diffs):
+		return -1*np.array(diffs)
 
 class Subtraction(Node):
 
@@ -337,6 +354,37 @@ class Subtraction(Node):
 		return np.subtract(values[0], values[1])
 
 	@node_decorate('differentiate')
-	def diff(self, values):
-		return np.subtract(values[0], values[1])
+	def diff(self, values, diffs):
+		return np.subtract(diffs[0], diffs[1])
 
+
+class Multiplication(Node):
+
+	def __init__(self):
+		super().__init__()
+		self.type = 'Multiplication'
+
+	@node_decorate('evaluate')
+	def eval(self, values):
+		return np.multiply(values[0], values[1])
+
+	@node_decorate('differentiate')
+	def diff(self, values, diffs):
+		return np.multiply(diffs[0], values[1]) + np.multiply(diffs[1], values[0])
+
+
+class Division(Node):
+
+	def __init__(self):
+		super().__init__()
+		self.type = 'Division'
+
+	@node_decorate('evaluate')
+	def eval(self, values):
+		return np.divide(values[0], values[1])
+
+	@node_decorate('differentiate')
+	def diff(self, values, diffs):
+		num = np.multiply(diffs[0], values[1]) - np.multiply(values[0], diffs[1])
+		denom = np.array(values[1])**2
+		return np.divide(num, denom)
