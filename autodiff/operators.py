@@ -9,7 +9,7 @@ class Log(Node):
 
   @node_decorate('evaluate')
   def eval(self, values):
-    base, value = values
+    value, base = values
     return np.log(value) / np.log(base)
 
   @node_decorate('differentiate')
