@@ -145,6 +145,14 @@ class Node():
 		node = self.make_node(Division(), value, self)
 		return node
 
+	def __pow__(self, value):
+		node = self.make_node(Power(), self, value)
+		return node
+
+	def __rpow__(self, value):
+		node = self.make_node(Power(), value, self)
+		return node
+
 	""" ATTRIBUTES
 
 	Methods for setting and getting attributes. 
@@ -389,3 +397,22 @@ class Division(Node):
 		num = np.multiply(diffs[0], values[1]) - np.multiply(values[0], diffs[1])
 		denom = np.array(values[1])**2
 		return np.divide(num, denom)
+
+class Power(Node):
+
+	def __init__(self):
+		super().__init__()
+		self.type = 'Power'
+
+	@node_decorate('evaluate')
+	def eval(self, values):
+		base, exp = values
+		return np.power(base, exp)
+
+	@node_decorate('differentiate')
+	def diff(self, values, diffs):
+		base, exp = values
+		b_prime, _ = diffs
+		coef = np.multiply(exp, b_prime)
+		powered = np.power(base, np.subtract(exp, 1))
+		return np.multiply(coef, powered)
