@@ -99,15 +99,14 @@ Example use:
 ```Python
 import autodiff as AD
 
-x1 = AD.node()
-x2 = AD.node()
+x1 = AD.Variable()
+x2 = AD.Variable()
 
 y = AD.exp(x1) + x2
 
-x1.set_value(0)
-x2.set_value(3)
+y.evaluate(x1=0, x2=3)
 
-print(y.evaluate) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
+print(y.evaluate()) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
 ```
 
 The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `evaluate` method.
