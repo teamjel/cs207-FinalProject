@@ -232,8 +232,8 @@ def test_binary_errors():
         i(b = 1)
     with pytest.raises(TypeError):
         i(a = 2, b = 3, c = 1)
-    # with pytest.raises(ZeroDivisionError):
-    #     i(a = 2, b = 0)
+    with pytest.raises(ZeroDivisionError):
+        i(a = 2, b = 0)
     # with pytest.raises(NoValueError):
     #     i.derivative()
     with pytest.raises(UnboundLocalError):
