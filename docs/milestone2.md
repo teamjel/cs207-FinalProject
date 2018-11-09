@@ -6,7 +6,7 @@ In CS207, we explored the finite difference method, but we also computed a symbo
 Automatic differentiation (AD) overcomes both of these deficiencies. It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode. (Lecture 9)
 
 # How to Use Package
-To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command `sudo easy_install virtualenv`. Next, go to the top level of your project directory and create a new virtual environment with the command `virtualenv [name]`. To activate the environment, type the command `[name] env/bin/activate`. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install -i https://test.pypi.org/simple/ autodiff-jel'. You should see an output like so:
+To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command `sudo easy_install virtualenv`. Next, go to the top level of your project directory and create a new virtual environment with the command `virtualenv [name]`. To activate the environment, type the command `[name] env/bin/activate`. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install -i https://test.pypi.org/simple/autodiff-jel'. You should see an output like so:
 
 Collecting `autodiff-jel`
   Downloading https://test-files.pythonhosted.org/packages/.../autodiff-jel-0.0.1-py3-none-any.whl
@@ -15,25 +15,34 @@ Successfully installed autodiff-jel-0.0.1
 
 Congratulations, you have installed autodiff-jel. To check that the installation was successful, run the python interpreter by typing 'python'. Import the module and do a simple operation such as printing out the name of the package like so:
 
+```Python
 >>> import autodiff as AD
 >>> AD.name
 'autodiff_jel'
+```
 
 If your screen looks like the above, you have successfully installed `autodiff`!
 
 Let's now go through a demo. Let us use automatic differentiation on the function sin(x).
 We first need to set up the variable and the equation.
 
-x = AD.Var()
+```Python
+x = AD.Variable("x")
 y = AD.Sin(x)
+```
 
 Next we need to assign a value to each variable during the evaluation call.
 
-print (y.evaluate({x: math.pi}))
+```Python
+y(x=math.pi)
+```
 
 Lastly, we can now get the derivative of the function like so and specify the variable of the partial derivative:
 
-print (y.differentiate(x))
+```Python
+print (y.derivative()["x"])
+-1
+```
 
 Congratulations, you can now begin automatic differentiating away!
 
@@ -99,17 +108,22 @@ Example use:
 ```Python
 import autodiff as AD
 
-x1 = AD.Variable()
-x2 = AD.Variable()
+a = Variable("a")
+b = Variable("b")
+c = Variable("c")
+d = Variable("d")
+y = cos((-a)**2/c) - 4*sin(b) * log(exp(d) + 1, 10)
 
-y = AD.exp(x1) + x2
+y(a = 2, b = 3, c = -1, d = 4)
 
-y.evaluate(x1=0, x2=3)
+print(round(y.value(),2))
+-1.64
 
-print(y.evaluate()) # (4, [0, 1]): the first element in the tuple represents the value, and the second represents the gradients
+print(round(y.derivative()["a"], 2))
+3.03
 ```
 
-The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `evaluate` method.
+The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `value` and `derivative` methods respectively.
 
 # Implementation
 We will be implementing the automatic differentiation by using `Node` instances and its subclasses, which are defined in `Operators` module. We can also visualize the algorithm using `Visualization` module.
@@ -159,11 +173,12 @@ We will specifically leverage [matrix operations](https://docs.scipy.org/doc/num
 Elementary functions including trigonometric functions, logarithmic functions, and exponential functions, will be accounted for in `Operators.py`, which are subclasses of `Node`.
 
 # Future
+
+Below are a few things we would like to implement:
+- Allow vector inputs
 - Use PyPy to improve performace
-- Reverse Mode
-- Visualization
-- Matrix
--
+- Implement Reverse Mode
+- Visualization (Computation Graph, Computation Table)
 
 
 
