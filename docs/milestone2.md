@@ -106,7 +106,7 @@ The user will obtain our package through PyPI. The user will first install the p
 Example use:
 
 ```Python
-import autodiff as AD
+from autodiff import Variable, sin, cos, log, exp
 
 a = Variable("a")
 b = Variable("b")
@@ -121,6 +121,9 @@ print(round(y.value(),2))
 
 print(round(y.derivative()["a"], 2))
 3.03
+
+print(y)
+Node(Function = 'Subtraction', Value = -1.638695338498409, Derivative = {'b': 6.910386575432481, 'd': -0.24074123364509895, 'c': 3.027209981231713, 'a': 3.027209981231713})
 ```
 
 The user can instantiate multiple nodes and apply any operators outlined in the `Operators` module. The value and the gradients of the node can be accessed by using the `value` and `derivative` methods respectively.

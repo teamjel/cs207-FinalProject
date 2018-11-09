@@ -11,6 +11,7 @@ TODO:
 
 from functools import wraps
 import numpy as np
+import numbers
 # import operators
 
 """
@@ -165,6 +166,8 @@ class Node():
 		return self._derivative
 
 	def set_value(self, value):
+		if not isinstance(value, numbers.Number):
+			raise TypeError('Value must be numeric.')
 		self._value = value
 
 	def set_derivative(self, value):
@@ -283,6 +286,7 @@ class Variable(Node):
 		if name is None or not isinstance(name, str):
 			raise ValueError('Name must be given for variable.')
 		self.name = name
+		self.type = 'Variable'
 		self._variables[name] = self
 
 	def eval(self):
@@ -391,12 +395,16 @@ class Division(Node):
 
 	@node_decorate('evaluate')
 	def eval(self, values):
+		if values[1] == 0:
+			raise ZeroDivisionError('Division by zero.')
 		return np.divide(values[0], values[1])
 
 	@node_decorate('differentiate')
 	def diff(self, values, diffs):
 		num = np.multiply(diffs[0], values[1]) - np.multiply(values[0], diffs[1])
 		denom = np.array(values[1])**2
+		if denom == 0:
+			raise ZeroDivisionError('Division by zero.')
 		return np.divide(num, denom)
 
 class Power(Node):
@@ -413,7 +421,15 @@ class Power(Node):
 	@node_decorate('differentiate')
 	def diff(self, values, diffs):
 		base, exp = values
-		b_prime, _ = diffs
+		b_prime, exp_prime = diffs
+
+		# First term
 		coef = np.multiply(exp, b_prime)
 		powered = np.power(base, np.subtract(exp, 1))
-		return np.multiply(coef, powered)
+		term1 = np.multiply(coef, powered)
+
+		# Second term
+		coef = np.multiply(np.log(base), exp_prime)
+		powered = np.power(base, exp)
+		term2 = np.multiply(coef, powered)
+		return term1+term2
