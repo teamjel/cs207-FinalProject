@@ -7,6 +7,7 @@ def test_unary_node():
     assert (isinstance(-a, Negation))
     b = Variable("b")
     assert (isinstance(b**2, Power))
+    assert (isinstance(2**b, Power))
 
 def test_unary_node_errors():
     with pytest.raises(ValueError):

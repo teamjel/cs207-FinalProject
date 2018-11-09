@@ -13,6 +13,7 @@ def test_constant_results():
     assert (const.derivative() == 0)
     assert (const.value() == 1)
     assert (const.eval() == 1)
+    print(const)
 
 def test_constant_errors():
     const = Node.make_constant(4)
@@ -57,6 +58,11 @@ def test_unary_result():
     assert (int(cosE.derivative()["e"]) == 0)
     assert (int(cosE(e = math.pi/2).value()) == 0)
     assert (int(cosE.derivative()["e"]) == -1)
+    # function: sqrt(f), derivative: 1/2(x)^(-1/2)
+    f = Variable("f")
+    sqrtF = sqrt(f)
+    assert (int(sqrtF(f = 4).value()) == 2)
+    assert (round(sqrtF.derivative()["f"], 3) == 0.25)
     # function: g**3, derivative: 3*x^2
     g = Variable("g")
     powerG = g**3
@@ -81,6 +87,8 @@ def test_unary_errors():
     #     a(a = "hi")
     with pytest.raises(TypeError):
         a(b = 3)
+    with pytest.raises(NoValueError):
+        a(a = None)
     with pytest.raises(TypeError):
         a.derivative(a)
     # function: -b, derivative: -1
