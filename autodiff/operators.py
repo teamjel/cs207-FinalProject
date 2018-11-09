@@ -1,67 +1,90 @@
+import numpy as np
+from .node import Node
+from .node import node_decorate
+
 class Log(Node):
-  def __init__(self, node, base, name=""):
-    super().__init__(name=name)
-    self.node = node
-    self.base = base
+  def __init__(self):
+    super().__init__()
+    self.type = "Log"
 
-  def der(self, name):
-    self.eval()
-    g = np.log(self.node.value)
-    g_prime = (self.node.der(name) / self.node.value)
-    h = np.log(self.base.value)
-    h_prme = (self.base.der(name) / self.base.value)
-    return (g_prime * h - g * h_prime) / (h **2)
+  @node_decorate('evaluate')
+  def eval(self, values):
+    value, base = values
+    return np.log(value) / np.log(base)
 
-  def eval(self):
-    self._value = np.log(self.node.value) / np.log(self.base.value)
+  @node_decorate('differentiate')
+  def diff(self, values, diffs):
+    node_value, base_value = values
+    node_diff, base_diff = diffs
+    g = np.log(node_value)
+    g_prime = (node_diff / node_value)
+    h = np.log(base_value)
+    h_prime = (base_diff / base_value)
+    return (g_prime * h - g * h_prime) / (h ** 2)
 
+def log(node, base=np.e):
+  return Node.make_node(Log(), node, base)
 
 class Exp(Node):
-  def __init__(self, node, name=None):
-    super().__init__(name=name)
-    self.
+  def __init__(self):
+    super().__init__()
+    self.type = "Exponential"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.exp(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, values, diffs):
+    return np.exp(values[0]) * diffs[0]
+
+def exp(node):
+  return Node.make_node(Exp(), node)
+
+class Sqrt(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Squared Root"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.sqrt(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, values, diffs):
+    return 1/(2 * np.sqrt(values[0])) * diffs[0]
+
+def sqrt(node):
+  return Node.make_node(Sqrt(), node)
 
 class Sin(Node):
-  def __init__(self, node, name=""):
-    super().__init__(name=name)
-    self.node = node
+  def __init__(self):
+    super().__init__()
+    self.type = "Sine"
 
-  def der(self, name):
-    self.eval()
-    return np.cos(self.node.value) * self.node.der(name)
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.sin(values[0])
 
-  def eval(self):
-    self._value = np.sin(self.node.value)
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    return np.cos(value[0]) * diffs[0]
+
+def sin(node):
+  return Node.make_node(Sin(), node)
 
 class Cos(Node):
-  def __init__(self, node, name=""):
-    super().__init__(name=name)
-    self.node = node
+  def __init__(self):
+    super().__init__()
+    self.type = "Cosine"
 
-  def der(self, name):
-    return -np.sin(self.node.value) * self.node.der(name)
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.cos(values[0])
 
-  def eval(self):
-    self._value = np.cos(self.node.value)
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    return -np.sin(value[0]) * diffs[0]
 
-class Tan(Node):
-  def __init__(self, node, name=""):
-    super().__init__(name=name)
-    self.node = node
-
-  def der(self, name):
-    return -np.sin(self.node.value) * self.node.der(name)
-
-  def eval(self):
-    self._value = np.cos(self.node.value)
-
-class Neg(Node):
-  def __init__(self, node, name=None)
-    super().__init__(name=name)
-    self.node = node
-
-  def der(self, node):
-    return -self.node.der()
-
-  def eval(self):
-    self.value = -self.node.value
+def cos(node):
+  return Node.make_node(Cos(), node)
