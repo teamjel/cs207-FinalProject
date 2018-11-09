@@ -87,7 +87,7 @@ def test_unary_errors():
     #     a(a = "hi")
     with pytest.raises(TypeError):
         a(b = 3)
-    with pytest.raises(NoValueError):
+    with pytest.raises(TypeError):
         a(a = None)
     with pytest.raises(TypeError):
         a.derivative(a)
