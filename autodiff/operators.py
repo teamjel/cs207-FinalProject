@@ -52,7 +52,7 @@ class Sqrt(Node):
 
   @node_decorate('differentiate')
   def diff(self, values, diffs):
-    return 1/(2 * values[0]) * diffs[0]
+    return 1/(2 * np.sqrt(values[0])) * diffs[0]
 
 def sqrt(node):
   return Node.make_node(Sqrt(), node)
