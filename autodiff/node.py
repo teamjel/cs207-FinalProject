@@ -429,7 +429,11 @@ class Power(Node):
 		term1 = np.multiply(coef, powered)
 
 		# Second term
-		coef = np.multiply(np.log(base), exp_prime)
-		powered = np.power(base, exp)
-		term2 = np.multiply(coef, powered)
+		term2 = 0
+		if exp_prime != 0:		
+			# Compute only if necessary, otherwise we run into log(-c) issues		
+			coef = np.multiply(np.log(base), exp_prime)
+			powered = np.power(base, exp)
+			term2 = np.multiply(coef, powered)
+			
 		return term1+term2
