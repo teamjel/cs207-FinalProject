@@ -6,7 +6,7 @@ In CS207, we explored the finite difference method, but we also computed a symbo
 Automatic differentiation (AD) overcomes both of these deficiencies. It is less costly than symbolic differentiation while evaluating derivatives to machine precision.  There are two modes of automatic differentiation: forward and reverse.  This library will be primarily concerned with the forward mode. (Lecture 9)
 
 # How to Use Package
-To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command `sudo easy_install virtualenv`. Next, go to the top level of your project directory and create a new virtual environment with the command `virtualenv [name]`. To activate the environment, type the command `[name] env/bin/activate`. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install -i https://test.pypi.org/simple/autodiff-jel'. You should see an output like so:
+To use, first create a new virtual environment in order to develop with the package without polluting the global environment with dependencies. To do so, install virtualenv with the command `sudo easy_install virtualenv`. Next, go to the top level of your project directory and create a new virtual environment with the command `virtualenv [name]`. To activate the environment, type the command `[name] env/bin/activate`. Thus far, you have set up and activated your dev environment and can begin interacting with the AutoDiff package. To install the package, type in the command line 'python3 -m pip install -i https://test.pypi.org/simple/ autodiff-jel'. You should see an output like so:
 
 Collecting `autodiff-jel`
   Downloading https://test-files.pythonhosted.org/packages/.../autodiff-jel-0.0.1-py3-none-any.whl
@@ -17,6 +17,7 @@ Congratulations, you have installed autodiff-jel. To check that the installation
 
 ```Python
 >>> import autodiff as AD
+>>> import numpy as np
 >>> AD.name
 'autodiff_jel'
 ```
@@ -34,7 +35,7 @@ y = AD.sin(x)
 Next we need to assign a value to each variable during the evaluation call.
 
 ```Python
-y(x=math.pi)
+y(x=np.pi)
 ```
 
 Lastly, we can now get the derivative of the function like so and specify the variable of the partial derivative:
