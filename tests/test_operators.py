@@ -1,5 +1,5 @@
 import pytest
-import math
+import numpy as np
 from autodiff.node import *
 from autodiff.operators import *
 
@@ -37,8 +37,8 @@ def test_unary_result():
     # function: log(c), derivative: 1/c
     c = Variable("c")
     logC = log(c)
-    assert (int(logC(c = math.exp(1)).value()) == 1)
-    assert (round(logC.derivative()["c"], 2) == round(1/math.exp(1), 2))
+    assert (int(logC(c = np.exp(1)).value()) == 1)
+    assert (round(logC.derivative()["c"], 2) == round(1/np.exp(1), 2))
     assert (round(logC(c = 2).value(), 2) == 0.69)
     assert (round(logC.derivative()["c"], 2) == 0.50)
     log10C = log(c, 10)
@@ -47,16 +47,16 @@ def test_unary_result():
     # function: sin(d), derivative: cos(d)
     d = Variable("d")
     sinD = sin(d)
-    assert (int(sinD(d = math.pi).value()) == 0)
+    assert (int(sinD(d = np.pi).value()) == 0)
     assert (int(sinD.derivative()["d"]) == -1)
-    assert (int(sinD(d = math.pi/2).value()) == 1)
+    assert (int(sinD(d = np.pi/2).value()) == 1)
     assert (int(sinD.derivative()["d"]) == 0)
     # function: cos(d), derivative: -sin(d)
     e = Variable("e")
     cosE = cos(e)
-    assert (int(cosE(e = math.pi).value()) == -1)
+    assert (int(cosE(e = np.pi).value()) == -1)
     assert (int(cosE.derivative()["e"]) == 0)
-    assert (int(cosE(e = math.pi/2).value()) == 0)
+    assert (int(cosE(e = np.pi/2).value()) == 0)
     assert (int(cosE.derivative()["e"]) == -1)
     # function: sqrt(f), derivative: 1/2(x)^(-1/2)
     f = Variable("f")
