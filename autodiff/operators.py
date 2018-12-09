@@ -88,3 +88,98 @@ class Cos(Node):
 
 def cos(node):
   return Node.make_node(Cos(), node)
+
+class Tan(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Tangent"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.tan(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.cos(value[0])
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return (np.divide(1, denom)**2) * diffs[0]
+
+def tan(node):
+  return Node.make_node(Tan(), node)
+
+class Arcsin(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Arcsin"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.arcsin(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.sqrt(np.subtract(1, value[0]**2))
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return np.divide(1, denom) * diffs[0]
+
+def arcsin(node):
+  return Node.make_node(Arcsin(), node)
+
+class Arccos(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Arccos"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.arccos(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.sqrt(np.subtract(1, value[0]**2))
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return -np.divide(1, denom) * diffs[0]
+
+def arccos(node):
+  return Node.make_node(Arccos(), node)
+
+class Arctan(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Arctan"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.arctan(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.add(value[0]**2, 1)
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return np.divide(1, denom) * diffs[0]
+
+def arctan(node):
+  return Node.make_node(Arctan(), node)
+
+class Sqrt(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Sqrt"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.sqrt(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.multiply(2, np.sqrt(value[0]))
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return np.divide(1, denom) * diffs[0]
+
+def sqrt(node):
+  return Node.make_node(Sqrt(), node)
