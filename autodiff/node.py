@@ -154,6 +154,15 @@ class Node():
 		node = self.make_node(Power(), value, self)
 		return node
 
+	def __eq__(self,other):
+		return self.value() == other.value() and self.derivative() == other.derivative()
+
+	def __neq__(self, other):
+		return not self == other
+
+	def __hash__(self):
+		return id(self)
+
 	""" ATTRIBUTES
 
 	Methods for setting and getting attributes. 
