@@ -183,3 +183,76 @@ class Sqrt(Node):
 
 def sqrt(node):
   return Node.make_node(Sqrt(), node)
+
+class Sinh(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Sinh"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.sinh(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    return np.cosh(value[0]) * diffs[0]
+
+def sinh(node):
+  return Node.make_node(Sinh(), node)
+
+class Cosh(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Cosh"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.cosh(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    return np.sinh(value[0]) * diffs[0]
+
+def cosh(node):
+  return Node.make_node(Cosh(), node)
+
+class Tanh(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Tanh"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    return np.tanh(values[0])
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.cosh(value[0])
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return (np.divide(1, denom)**2) * diffs[0]
+
+def tanh(node):
+  return Node.make_node(Tanh(), node)
+
+class Logistic(Node):
+  def __init__(self):
+    super().__init__()
+    self.type = "Logistic"
+
+  @node_decorate('evaluate')
+  def eval(self, values):
+    denom = np.add(1, np.exp(-values[0]))
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return np.divide(1, denom)
+
+  @node_decorate('differentiate')
+  def diff(self, value, diffs):
+    denom = np.power(np.add(1, np.exp(-value[0])), 2)
+    if denom == 0:
+      raise ZeroDivisionError('Division by zero.')
+    return np.divide(np.exp(-value[0]), denom) * diffs[0]
+
+def logistic(node):
+  return Node.make_node(Logistic(), node)
