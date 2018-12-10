@@ -75,7 +75,7 @@ def test_unary_result():
     expH = exp(h)
     assert (round(expH(h = 2).value(), 2) == 7.39)
     assert (round(expH.derivative()["h"], 2) == 7.39)
-    
+
 def test_unary_errors():
     # function: a, derivative: 1
     a = Variable("a")
@@ -160,7 +160,7 @@ def test_unary_errors():
     # with pytest.raises(NoValueError):
     #     expH.derivative()
 
-# Test binary operators: addition, subtraction, multiplication, division. 
+# Test binary operators: addition, subtraction, multiplication, division, logarithm, power
 def test_binary_result():
     a = Variable("a")
     b = Variable("b")
@@ -172,11 +172,11 @@ def test_binary_result():
     assert (e(a = 2, b = 3).value() == -1)
     assert (e.derivative()["a"] == 1)
     assert (e.derivative()["b"] == -1)
-    g = a * b 
+    g = a * b
     assert (g(a = 3, b = 2).value() == 6)
     assert (g.derivative()["a"] == 2)
     assert (g.derivative()["b"] == 3)
-    i = a / b 
+    i = a / b
     assert (int(i(a = 6, b = 2).value()) == 3)
     assert (round(i.derivative()["a"], 2) == 0.50)
     assert (round(i.derivative()["b"], 2) == -1.50)
@@ -210,7 +210,7 @@ def test_binary_errors():
     #     e.derivative()
     with pytest.raises(UnboundLocalError):
         e(2,3)
-    g = a * b 
+    g = a * b
     with pytest.raises(TypeError):
         g.derivative(g)
     with pytest.raises(TypeError):
@@ -223,7 +223,7 @@ def test_binary_errors():
     #     g.derivative()
     with pytest.raises(UnboundLocalError):
         g(2,3)
-    i = a / b 
+    i = a / b
     with pytest.raises(TypeError):
         i.derivative(i)
     with pytest.raises(TypeError):
