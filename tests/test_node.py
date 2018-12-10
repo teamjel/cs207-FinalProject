@@ -8,8 +8,15 @@ def test_unary_node():
     b = Variable("b")
     assert (isinstance(b**2, Power))
     assert (isinstance(2**b, Power))
+    assert (str(b) == "Node(Function = 'Variable', Value = None, Derivative = {}, name = b)")
 
 def test_unary_node_errors():
+    with pytest.raises(NotImplementedError):
+        c = Node()
+        c.eval(None)
+    with pytest.raises(NotImplementedError):
+        c = Node()
+        c.diff(None, None)
     with pytest.raises(ValueError):
         a = Variable()
     with pytest.raises(UnboundLocalError):
@@ -20,6 +27,13 @@ def test_unary_node_errors():
         a = Variable("a", "b")
     with pytest.raises(ValueError):
         a = Variable([])
+    with pytest.raises(NoValueError):
+        a = Variable("a")
+        a.eval()
+    with pytest.raises(NoValueError):
+        a = Variable("a")
+        a.set_derivative(None)
+        a.diff()
     a = Variable("a")
     with pytest.raises(NameError):
         b = a**t

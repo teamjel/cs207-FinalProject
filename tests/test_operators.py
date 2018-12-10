@@ -70,6 +70,12 @@ def test_unary_result():
     assert (powerG.derivative()["g"] == 27)
     assert (powerG(g = 2).value() == 8)
     assert (powerG.derivative()["g"] == 12)
+    g = Variable("g")
+    h = Variable("h")
+    powerG = g**h
+    assert (powerG(g = 3, h = 4).value() == 81)
+    assert (powerG.derivative()["g"] == 108)
+    assert (round(powerG.derivative()["h"], 2) == 88.99)
     # function: e^h, derivative: e^h
     h = Variable("h")
     expH = exp(h)
@@ -219,8 +225,6 @@ def test_binary_errors():
         g(b = 2)
     with pytest.raises(TypeError):
         g(a = 2, b = 3, c = 1)
-    # with pytest.raises(NoValueError):
-    #     g.derivative()
     with pytest.raises(UnboundLocalError):
         g(2,3)
     i = a / b
@@ -234,8 +238,6 @@ def test_binary_errors():
         i(a = 2, b = 3, c = 1)
     with pytest.raises(ZeroDivisionError):
         i(a = 2, b = 0)
-    # with pytest.raises(NoValueError):
-    #     i.derivative()
     with pytest.raises(UnboundLocalError):
         i(2,3)
 
