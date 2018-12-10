@@ -101,7 +101,7 @@ class Tan(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.cos(value[0])
-    if denom == 0:
+    if round(denom, 4) == 0.0000:
       raise ZeroDivisionError('Division by zero.')
     return (np.divide(1, denom)**2) * diffs[0]
 
@@ -120,7 +120,7 @@ class Arcsin(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.sqrt(np.subtract(1, value[0]**2))
-    if denom == 0:
+    if round(denom, 4) == 0.0000:
       raise ZeroDivisionError('Division by zero.')
     return np.divide(1, denom) * diffs[0]
 
@@ -139,7 +139,7 @@ class Arccos(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.sqrt(np.subtract(1, value[0]**2))
-    if denom == 0:
+    if round(denom, 4) == 0.0000:
       raise ZeroDivisionError('Division by zero.')
     return -np.divide(1, denom) * diffs[0]
 
@@ -158,31 +158,10 @@ class Arctan(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.add(value[0]**2, 1)
-    if denom == 0:
-      raise ZeroDivisionError('Division by zero.')
     return np.divide(1, denom) * diffs[0]
 
 def arctan(node):
   return Node.make_node(Arctan(), node)
-
-class Sqrt(Node):
-  def __init__(self):
-    super().__init__()
-    self.type = "Sqrt"
-
-  @node_decorate('evaluate')
-  def eval(self, values):
-    return np.sqrt(values[0])
-
-  @node_decorate('differentiate')
-  def diff(self, value, diffs):
-    denom = np.multiply(2, np.sqrt(value[0]))
-    if denom == 0:
-      raise ZeroDivisionError('Division by zero.')
-    return np.divide(1, denom) * diffs[0]
-
-def sqrt(node):
-  return Node.make_node(Sqrt(), node)
 
 class Sinh(Node):
   def __init__(self):
@@ -228,8 +207,6 @@ class Tanh(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.cosh(value[0])
-    if denom == 0:
-      raise ZeroDivisionError('Division by zero.')
     return (np.divide(1, denom)**2) * diffs[0]
 
 def tanh(node):
@@ -243,15 +220,11 @@ class Logistic(Node):
   @node_decorate('evaluate')
   def eval(self, values):
     denom = np.add(1, np.exp(-values[0]))
-    if denom == 0:
-      raise ZeroDivisionError('Division by zero.')
     return np.divide(1, denom)
 
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.power(np.add(1, np.exp(-value[0])), 2)
-    if denom == 0:
-      raise ZeroDivisionError('Division by zero.')
     return np.divide(np.exp(-value[0]), denom) * diffs[0]
 
 def logistic(node):
