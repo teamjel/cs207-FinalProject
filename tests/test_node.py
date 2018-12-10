@@ -10,6 +10,18 @@ def test_unary_node():
     assert (isinstance(2**b, Power))
     assert (str(b) == "Node(Function = 'Variable', Value = None, Derivative = {}, name = b)")
 
+def test_equality_node():
+    a = Variable("a")
+    b = Variable("b")
+    c = Variable("c")
+    assert(a == a)
+    assert(a == b)
+    a(a = 3)
+    b(b = 3)
+    c(c = 2)
+    assert(a == b)
+    assert(a != c)
+
 def test_unary_node_errors():
     with pytest.raises(NotImplementedError):
         c = Node()
