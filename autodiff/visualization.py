@@ -2,16 +2,22 @@ from graphviz import Digraph
 import pandas as pd
 
 def create_computational_graph(node):
+    """ Creates a computational graph for a given node. """
     graph = CompGraph()
     graph.build_graph(node)
     return graph
 
 def create_computational_table(node):
+    """ Creates a computational table for a given node. """
     table = CompTable()
     df = table.build_table(node)
     return df
 
 class CompGraph(Digraph):
+    """ Class for Computational Graph.
+
+    Uses Digraph from graphviz.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.added_nodes = set()
@@ -19,7 +25,7 @@ class CompGraph(Digraph):
         self.graph_attr.update(rankdir="BT")
 
     @staticmethod
-    def id_str(node):
+    def get_id(node):
         return str(node.id)
 
     @staticmethod
@@ -49,31 +55,35 @@ class CompGraph(Digraph):
             return "oval"
 
     def add_node(self, node):
-        super().node(CompGraph.id_str(node),
+        super().node(CompGraph.get_id(node),
                      label=CompGraph.get_label(node),
                      color=CompGraph.get_color(node),
                      shape=CompGraph.get_shape(node))
-        self.added_nodes.add(CompGraph.id_str(node))
+        self.added_nodes.add(CompGraph.get_id(node))
 
     def add_edge(self, child, parent):
-        self.edge(CompGraph.id_str(child),
-                  CompGraph.id_str(parent),
+        self.edge(CompGraph.get_id(child),
+                  CompGraph.get_id(parent),
                   **{"style": "filled"})
-        self.added_edges.add((CompGraph.id_str(child),
-                  CompGraph.id_str(parent)))
+        self.added_edges.add((CompGraph.get_id(child),
+                  CompGraph.get_id(parent)))
 
     def build_graph(self, top_node):
-        if CompGraph.id_str(top_node) not in self.added_nodes:
+        # Check if the node is already added
+        if CompGraph.get_id(top_node) not in self.added_nodes:
             self.add_node(top_node)
-            # a
+            # Add edge to its children
             for child in top_node.children:
                 self.add_edge(child, top_node)
-
-            # Make each of the children do the same, but skip duplicates
+            # Do the same to children
             for child in set(top_node.children):
                 self.build_graph(child)
 
 class CompTable():
+    """ Class for Computational Table.
+
+    Uses Pandas Table.
+    """
     def __init__(self):
         self.rows = []
         self.added_nodes = set()
@@ -84,6 +94,7 @@ class CompTable():
         if top_node.id not in self.added_nodes:
             self.added_nodes.add(top_node.id)
             self.nodes.append(top_node)
+            # Keep track of all variables
             if top_node.type == "Variable":
                 self.variables.append(top_node.name)
             for child in set(top_node.children):
@@ -95,7 +106,6 @@ class CompTable():
             row = {}
             # Set Trace
             row["Trace"] = f"x_{idx + 1}"
-
             # Set Elementary Function
             if node.type == "Variable":
                 row["Elementary Function"] = str(node.name)
@@ -114,10 +124,8 @@ class CompTable():
                 children = ",".join(children)
                 row["Elementary Function"] = f"{node.type}({children})"
             self.rows.append(row)
-
             # Set Current Value
             row["Current Value"]= node.value()
-
             # Set Gradients
             if node.type == "Variable":
                 for variable in self.variables:
@@ -139,13 +147,10 @@ class CompTable():
     def build_table(self,top_node):
         self.add_nodes(top_node)
         self.build_rows()
-
         df = pd.DataFrame(self.rows)
-
         # Order Columns
         columns = ["Trace","Elementary Function", "Current Value"]
         for variable in self.variables:
             columns.append(f"Grad {variable} value")
-
         df = df[columns]
         return df

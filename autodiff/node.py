@@ -301,9 +301,11 @@ class Node():
 		raise NotImplementedError
 
 	def get_comp_graph(self):
+		""" Creates a computational graph for a given node. """
 		return create_computational_graph(self)
 
 	def get_comp_table(self):
+		""" Creates a computational table for a given node. """
 		return create_computational_table(self)
 
 """ SUBCLASSES

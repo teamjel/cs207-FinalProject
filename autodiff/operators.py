@@ -114,7 +114,7 @@ class Tan(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.cos(value[0])
-    if round(denom, 4) == 0.0000:
+    if np.any(np.round(denom, 4) == 0.0000):
       raise ZeroDivisionError('Division by zero.')
     return (np.divide(1, denom)**2) * diffs[0]
 
@@ -133,7 +133,7 @@ class Arcsin(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.sqrt(np.subtract(1, value[0]**2))
-    if round(denom, 4) == 0.0000:
+    if np.any(np.round(denom, 4) == 0.0000):
       raise ZeroDivisionError('Division by zero.')
     return np.divide(1, denom) * diffs[0]
 
@@ -152,7 +152,7 @@ class Arccos(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     denom = np.sqrt(np.subtract(1, value[0]**2))
-    if round(denom, 4) == 0.0000:
+    if np.any(np.round(denom, 4) == 0.0000):
       raise ZeroDivisionError('Division by zero.')
     return -np.divide(1, denom) * diffs[0]
 
