@@ -8,7 +8,7 @@ def test_unary_node():
     b = Variable("b")
     assert (isinstance(b**2, Power))
     assert (isinstance(2**b, Power))
-    assert (str(b) == "Node(Function = 'Variable', Value = None, Derivative = {}, name = b)")
+    assert (str(b) == "Node(Function = 'Variable', Value = None, Derivative = {})")
 
 def test_equality_node():
     a = Variable("a")

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="autodiff_jel",
-    version="0.0.2",
+    version="0.0.4",
     author="Team JEL",
     author_email="",
     description="Python library for Automatic Differentiation",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/teamjel/cs207-FinalProject",
     packages=setuptools.find_packages(),
-    install_requires=["numpy", "graphviz"],
+    install_requires=["numpy", "graphviz", "pandas"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

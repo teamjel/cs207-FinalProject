@@ -29,13 +29,13 @@ class node_decorate():
 
 		Note: the class implementation of decorators behaves
 		very differently in the case the decorator pattern takes
-		arguments (__call__ is called only once at decoration, 
+		arguments (__call__ is called only once at decoration,
 		since we have another function layer outside now).
 		"""
 
 		def __init__(self, mode):
 		  # Maintain function metadata (doctstrings, etc.)
-			self.factory = {'evaluate': self.eval_wrapper, 
+			self.factory = {'evaluate': self.eval_wrapper,
 							'differentiate': self.diff_wrapper}
 			self.wrapper = self.factory[mode]
 
@@ -70,6 +70,7 @@ class Node():
 	Base Node implementation.
 	"""
 
+	id = 0
 	def __init__(self):
 		self._value = None
 		self._derivative = {}
@@ -79,6 +80,8 @@ class Node():
 
 		# Name of type of node
 		self.type = 'None'
+		self.id = Node.id
+		Node.id += 1
 
 	@classmethod
 	def make_constant(cls, value):
@@ -166,7 +169,7 @@ class Node():
 
 	""" ATTRIBUTES
 
-	Methods for setting and getting attributes. 
+	Methods for setting and getting attributes.
 	"""
 
 	def value(self):
@@ -193,12 +196,12 @@ class Node():
 	""" VARIABLES
 
 	Methods for handling variables, the basic
-	stores for actually computing the values and 
+	stores for actually computing the values and
 	derivatives of any given node.
 	"""
 	def update_variables(self):
 		"""	Update current variable list to reflect all variables
-		necessary in children. 
+		necessary in children.
 		"""
 
 		new_vars = []
@@ -286,9 +289,11 @@ class Node():
 		raise NotImplementedError
 
 	def get_comp_graph(self):
+		""" Creates a computational graph for a given node. """
 		return create_computational_graph(self)
 
 	def get_comp_table(self):
+		""" Creates a computational table for a given node. """
 		return create_computational_table(self)
 
 """ SUBCLASSES
@@ -474,7 +479,8 @@ class Power(Node):
 
 		# Second term
 		term2 = 0
-		# if exp_prime != 0:		
+
+		# if exp_prime != 0:
 			# Compute only if necessary, otherwise we run into log(-c) issues
 		temp_base = np.copy(base)
 		temp_base[temp_base<=0] = 1
@@ -482,5 +488,5 @@ class Power(Node):
 		coef = np.multiply(np.log(temp_base), exp_prime)
 		powered = np.power(base, exp)
 		term2 = np.multiply(coef, powered)
-			
+
 		return term1+term2
