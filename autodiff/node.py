@@ -179,13 +179,16 @@ class Node():
 		return self._derivative
 
 	def set_value(self, value):
-		if not isinstance(value, numbers.Number):
-			raise TypeError('Value must be numeric.')
+		if not isinstance(value, (numbers.Number, np.ndarray)):
+			raise TypeError('Value must be numeric or a numpy array.')
 		self._value = value
 
 	def set_derivative(self, value):
-		self.update_cur_var()
-		self._derivative[self._cur_var] = value
+		var = self.update_cur_var()
+		if isinstance(value, numbers.Number):
+			self._derivative[self._cur_var] = value
+		else:
+			self._derivative[self._cur_var][var.var_idx] = value[var.var_idx]
 
 	def set_children(self, *children):
 		self.children = children
@@ -217,10 +220,14 @@ class Node():
 		for key, value in input_dict.items():
 			self._variables[key].set_value(value)
 
+			if isinstance(value, np.ndarray):
+				self._derivative[key] = np.zeros(value.size)
+
 	def update_cur_var(self):
 		for v in self._variables:
-			if self._variables[v].derivative() == 1:
+			if np.any(self._variables[v].derivative()):
 				self._cur_var = v
+				return self._variables[v]
 
 	def iterate_seeds(self):
 		""" Generator to iterate over all variables of this
@@ -233,9 +240,11 @@ class Node():
 			for v in self._variables:
 				self._variables[v].set_derivative(0)
 
-			self._variables[var].set_derivative(1)
-			# No need to call our method, redundant computation
-			self._cur_var = var
+			if isinstance(self._variables[var].value(), np.ndarray):
+				for idx in self._variables[var].iterate_idxs():
+					yield idx
+			else:
+				self._variables[var].set_derivative(1)
 			yield var
 
 	""" COMPUTATION
@@ -306,6 +315,7 @@ class Variable(Node):
 		self.name = name
 		self.type = 'Variable'
 		self._variables[name] = self
+		self.var_idx = -1
 
 	def eval(self):
 		if self.value() is None:
@@ -320,7 +330,24 @@ class Variable(Node):
 	# Override dict functionality for variables; I could keep this
 	# consistent, but would increase computation; elegance tradeoff
 	def set_derivative(self, value):
-		self._derivative = value
+		if isinstance(self.value(), np.ndarray):
+			self._derivative[:] = value
+		else:
+			self._derivative = value
+
+	# On value set, needs to set the derivative
+	def set_value(self, value):
+		if isinstance(value, np.ndarray):
+			self.set_derivative(np.zeros(value.size))
+		super().set_value(value)
+
+	# Iterate over each vector position
+	def iterate_idxs(self):
+		for i in range(self._value.size):
+			self.set_derivative(0)
+			self.var_idx = i
+			self._derivative[i] = 1
+			yield i
 
 
 class Constant(Node):
@@ -353,11 +380,13 @@ class Addition(Node):
 
 	@node_decorate('evaluate')
 	def eval(self, values):
-		return np.sum(values)
+		left, right = values
+		return np.add(left, right)
 
 	@node_decorate('differentiate')
 	def diff(self, values, diffs):
-		return np.sum(diffs)
+		left, right = diffs
+		return np.add(left, right)
 
 
 class Negation(Node):
@@ -448,10 +477,14 @@ class Power(Node):
 
 		# Second term
 		term2 = 0
-		if exp_prime != 0:
+
+		# if exp_prime != 0:
 			# Compute only if necessary, otherwise we run into log(-c) issues
-			coef = np.multiply(np.log(base), exp_prime)
-			powered = np.power(base, exp)
-			term2 = np.multiply(coef, powered)
+		temp_base = np.copy(base)
+		temp_base[temp_base<=0] = 1
+
+		coef = np.multiply(np.log(temp_base), exp_prime)
+		powered = np.power(base, exp)
+		term2 = np.multiply(coef, powered)
 
 		return term1+term2

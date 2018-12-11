@@ -16,10 +16,23 @@ class Log(Node):
   def diff(self, values, diffs):
     node_value, base_value = values
     node_diff, base_diff = diffs
+
+    # Ignores zero errors:
+    # node_value, base_value = [np.array(val,dtype=float) for val in values]
+    # node_diff, base_diff = [np.array(val,dtype=float) for val in diffs]
+
     g = np.log(node_value)
     g_prime = (node_diff / node_value)
     h = np.log(base_value)
     h_prime = (base_diff / base_value)
+
+    # Ignores zero errors:
+    # g = np.log(node_value, out=np.zeros_like(node_value), where=node_value!=0)
+    # g_prime = np.divide(node_diff, node_value, out=np.zeros_like(node_diff), where=node_value!=0)
+    # h = np.log(base_value, out=np.zeros_like(base_value), where=base_value!=0)
+    # h_prime = np.divide(base_diff, base_value, out=np.zeros_like(base_diff), where=base_value!=0)
+
+
     return (g_prime * h - g * h_prime) / (h ** 2)
 
 def log(node, base=np.e):
