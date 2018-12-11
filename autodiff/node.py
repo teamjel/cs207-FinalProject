@@ -12,6 +12,7 @@ TODO:
 from functools import wraps
 import numpy as np
 import numbers
+from .visualization import create_computational_graph, create_computational_table
 # import operators
 
 """
@@ -277,6 +278,11 @@ class Node():
 	def diff(self, values, diffs):
 		raise NotImplementedError
 
+	def get_comp_graph(self):
+		return create_computational_graph(self)
+
+	def get_comp_table(self):
+		return create_computational_table(self)
 
 """ SUBCLASSES
 
