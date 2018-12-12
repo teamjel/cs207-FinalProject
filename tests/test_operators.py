@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from autodiff.node import *
 from autodiff.operators import *
+from autodiff.settings import *
 
 # Test constant.
 def test_constant_results():
@@ -375,3 +376,118 @@ def test_composition_errors():
         y(2, 3,-1, 4)
     # with pytest.raises(ZeroDivisionError):
     #     y(a = 2, b = 0, c = 0, d = 5)
+
+""" Reverse mode tests. """
+
+# Test unary operators: negation, log, sin, cos, tan, power, exponential.
+def test_unary_result():
+    settings.set_mode("reverse")
+    # function: a, derivative: 1
+    a = Variable("a")
+    assert (a(a = 3).value() == 3)
+    assert (a.derivative() == 1)
+    # function: -b, derivative: -1
+    b = Variable("b")
+    negB = -b
+    assert (negB(b = 3).value() == -3)
+    assert (negB.derivative()["b"] == -1)
+    # function: sin(d), derivative: cos(d)
+    d = Variable("d")
+    sinD = sin(d)
+    assert (int(sinD(d = np.pi).value()) == 0)
+    assert (int(sinD.derivative()["d"]) == -1)
+    assert (int(sinD(d = np.pi/2).value()) == 1)
+    assert (int(sinD.derivative()["d"]) == 0)
+    # function: cos(d), derivative: -sin(d)
+    e = Variable("e")
+    cosE = cos(e)
+    assert (int(cosE(e = np.pi).value()) == -1)
+    assert (int(cosE.derivative()["e"]) == 0)
+    assert (int(cosE(e = np.pi/2).value()) == 0)
+    assert (int(cosE.derivative()["e"]) == -1)
+    # function: sqrt(f), derivative: 1/2(x)^(-1/2)
+    f = Variable("f")
+    sqrtF = sqrt(f)
+    assert (int(sqrtF(f = 4).value()) == 2)
+    assert (round(sqrtF.derivative()["f"], 3) == 0.25)
+    # function: e^h, derivative: e^h
+    h = Variable("h")
+    expH = exp(h)
+    assert (round(expH(h = 2).value(), 2) == 7.39)
+    assert (round(expH.derivative()["h"], 2) == 7.39)
+    i = Variable("i")
+    tani = tan(i)
+    assert(int(tani(i = np.pi).value()) == 0)
+    assert(int(tani.derivative()["i"]) == 1)
+    j = Variable("j")
+    arcsinj = arcsin(j)
+    assert(round(arcsinj(j = 0.5).value(), 2) == 0.52)
+    assert(round(arcsinj.derivative()["j"], 2) == 1.15)
+    k = Variable("k")
+    arccosk = arccos(k)
+    assert(round(arccosk(k = 0.5).value(), 2) == 1.05)
+    assert(round(arccosk.derivative()["k"], 2) == -1.15)
+    l = Variable("l")
+    arctanl = arctan(l)
+    assert(round(arctanl(l = 0.5).value(), 2) == 0.46)
+    assert(round(arctanl.derivative()["l"], 2) == 0.80)
+    m = Variable("m")
+    sinhm = sinh(m)
+    assert(round(sinhm(m = 0.5).value(), 2) == 0.52)
+    assert(round(sinhm.derivative()["m"], 2) == 1.13)
+    n = Variable("n")
+    coshn = cosh(n)
+    assert(round(coshn(n = 0.5).value(), 2) == 1.13)
+    assert(round(coshn.derivative()["n"], 2) == 0.52)
+    o = Variable("o")
+    tanho = tanh(o)
+    assert(round(tanho(o = 0.5).value(), 2) == 0.46)
+    assert(round(tanho.derivative()["o"], 2) == 0.79)
+    p = Variable("p")
+    logisticp = logistic(p)
+    assert(round(logisticp(p = 0.5).value(), 2) == 0.62)
+    assert(round(logisticp.derivative()["p"], 2) == 0.24)
+
+# Test binary operators: addition, subtraction, multiplication, division, logarithm, power
+def test_binary_result():
+    settings.set_mode("reverse")
+    a = Variable("a")
+    b = Variable("b")
+    c = a + b
+    assert (c(a = 2, b = 3).value() == 5)
+    assert (c.derivative()["a"] == 1)
+    assert (c.derivative()["b"] == 1)
+    e = a - b
+    assert (e(a = 2, b = 3).value() == -1)
+    assert (e.derivative()["a"] == 1)
+    assert (e.derivative()["b"] == -1)
+    g = a * b
+    assert (g(a = 3, b = 2).value() == 6)
+    assert (g.derivative()["a"] == 2)
+    assert (g.derivative()["b"] == 3)
+    i = a / b
+    assert (int(i(a = 6, b = 2).value()) == 3)
+    assert (round(i.derivative()["a"], 2) == 0.50)
+    assert (round(i.derivative()["b"], 2) == -1.50)
+    # function: log(c), derivative: 1/c
+    c = Variable("c")
+    logC = log(c)
+    assert (int(logC(c = np.exp(1)).value()) == 1)
+    assert (round(logC.derivative()["c"], 2) == round(1/np.exp(1), 2))
+    assert (round(logC(c = 2).value(), 2) == 0.69)
+    assert (round(logC.derivative()["c"], 2) == 0.50)
+    log10C = log(c, 10)
+    assert (round(log10C(c = 2).value(), 2) == 0.30)
+    assert (round(log10C.derivative()["c"], 2) == 0.22)
+    # function: g**3, derivative: 3*x^2
+    g = Variable("g")
+    powerG = g**3
+    assert (powerG(g = 3).value() == 27)
+    assert (powerG.derivative()["g"] == 27)
+    assert (powerG(g = 2).value() == 8)
+    assert (powerG.derivative()["g"] == 12)
+    h = Variable("h")
+    powerGH = g**h
+    assert(powerGH(g = 3, h = 2).value() == 9)
+    assert(powerGH.derivative()["g"] == 6)
+    assert(round(powerGH.derivative()["h"], 2) == 9.89)
