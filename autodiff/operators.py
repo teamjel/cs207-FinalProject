@@ -35,6 +35,16 @@ class Log(Node):
 
     return (g_prime * h - g * h_prime) / (h ** 2)
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    val, base = values
+    val_out = np.divide(grad_value, np.multiply(np.log(base), val))
+    base_1 = np.power(np.divide(np.log(val), np.log(base)),2)
+    base_2 = np.multiply(val, np.log(base))
+    base_out = np.divide(-grad_value, np.multiply(base_1, base_2))
+
+    return (val_out, base_out)
+
 def log(node, base=np.e):
   return Node.make_node(Log(), node, base)
 
@@ -50,6 +60,10 @@ class Exp(Node):
   @node_decorate('differentiate')
   def diff(self, values, diffs):
     return np.exp(values[0]) * diffs[0]
+
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+   	return (np.multiply(np.exp(values[0]), grad_value),)
 
 def exp(node):
   return Node.make_node(Exp(), node)
@@ -67,6 +81,10 @@ class Sqrt(Node):
   def diff(self, values, diffs):
     return 1/(2 * np.sqrt(values[0])) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+   	return (np.divide(grad_value, 2*np.sqrt(values[0])),)
+
 def sqrt(node):
   return Node.make_node(Sqrt(), node)
 
@@ -83,6 +101,10 @@ class Sin(Node):
   def diff(self, value, diffs):
     return np.cos(value[0]) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+   	return (np.multiply(grad_value, np.cos(values[0])),)
+
 def sin(node):
   return Node.make_node(Sin(), node)
 
@@ -98,6 +120,10 @@ class Cos(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     return -np.sin(value[0]) * diffs[0]
+
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+   	return (np.multiply(-grad_value, np.sin(values[0])),)
 
 def cos(node):
   return Node.make_node(Cos(), node)
@@ -118,6 +144,13 @@ class Tan(Node):
       raise ZeroDivisionError('Division by zero.')
     return (np.divide(1, denom)**2) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.cos(values[0])
+    if np.any(np.round(denom, 4) == 0.0000):
+      raise ZeroDivisionError('Division by zero.')
+    return (np.multiply((np.divide(1, denom)**2), grad_value),)
+
 def tan(node):
   return Node.make_node(Tan(), node)
 
@@ -136,6 +169,13 @@ class Arcsin(Node):
     if np.any(np.round(denom, 4) == 0.0000):
       raise ZeroDivisionError('Division by zero.')
     return np.divide(1, denom) * diffs[0]
+
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.sqrt(np.subtract(1, values[0]**2))
+    if np.any(np.round(denom, 4) == 0.0000):
+      raise ZeroDivisionError('Division by zero.')
+    return (np.multiply(np.divide(1, denom), grad_value),)
 
 def arcsin(node):
   return Node.make_node(Arcsin(), node)
@@ -156,6 +196,13 @@ class Arccos(Node):
       raise ZeroDivisionError('Division by zero.')
     return -np.divide(1, denom) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.sqrt(np.subtract(1, values[0]**2))
+    if np.any(np.round(denom, 4) == 0.0000):
+      raise ZeroDivisionError('Division by zero.')
+    return (np.multiply(-np.divide(1, denom), grad_value),)
+
 def arccos(node):
   return Node.make_node(Arccos(), node)
 
@@ -173,6 +220,11 @@ class Arctan(Node):
     denom = np.add(value[0]**2, 1)
     return np.divide(1, denom) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.add(values[0]**2, 1)
+    return (np.multiply(np.divide(1, denom), grad_value),)
+
 def arctan(node):
   return Node.make_node(Arctan(), node)
 
@@ -189,6 +241,10 @@ class Sinh(Node):
   def diff(self, value, diffs):
     return np.cosh(value[0]) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+  	return (np.multiply(np.cosh(values[0]), grad_value),)
+
 def sinh(node):
   return Node.make_node(Sinh(), node)
 
@@ -204,6 +260,10 @@ class Cosh(Node):
   @node_decorate('differentiate')
   def diff(self, value, diffs):
     return np.sinh(value[0]) * diffs[0]
+
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+  	return (np.multiply(np.sinh(values[0]), grad_value),)
 
 def cosh(node):
   return Node.make_node(Cosh(), node)
@@ -222,6 +282,11 @@ class Tanh(Node):
     denom = np.cosh(value[0])
     return (np.divide(1, denom)**2) * diffs[0]
 
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.cosh(values[0])
+    return (np.multiply((np.divide(1, denom)**2), grad_value),)
+
 def tanh(node):
   return Node.make_node(Tanh(), node)
 
@@ -239,6 +304,11 @@ class Logistic(Node):
   def diff(self, value, diffs):
     denom = np.power(np.add(1, np.exp(-value[0])), 2)
     return np.divide(np.exp(-value[0]), denom) * diffs[0]
+
+  @node_decorate('reverse')
+  def reverse(self, values, grad_value):
+    denom = np.power(np.add(1, np.exp(-values[0])), 2)
+    return (np.multiply(np.divide(np.exp(-values[0]), denom), grad_value),)
 
 def logistic(node):
   return Node.make_node(Logistic(), node)
