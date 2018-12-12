@@ -1,22 +1,15 @@
-""" Node Logic for Automatic Differentiation
-
-Current Implementation: Scalars only
-
-TODO:
--Vector support
--PyPy optimization
--Visualization methods
--Reverse mode
+""" 
+Node Logic for Automatic Differentiation
 """
 
 from functools import wraps
 import numpy as np
 import numbers
 from .visualization import create_computational_graph, create_computational_table
-# import operators
+from .settings import settings
 
 """
-Custom exceptions. May put into different file.
+Custom exceptions. 
 """
 class NoValueError(Exception):
 	pass
@@ -34,9 +27,10 @@ class node_decorate():
 		"""
 
 		def __init__(self, mode):
-		  # Maintain function metadata (doctstrings, etc.)
+		  # Maintain function metadata (doctstrings, etc.) with wraps
 			self.factory = {'evaluate': self.eval_wrapper,
-							'differentiate': self.diff_wrapper}
+							'differentiate': self.diff_wrapper,
+							'reverse': self.reverse_wrapper}
 			self.wrapper = self.factory[mode]
 
 		def __call__(self, fn):
@@ -64,6 +58,28 @@ class node_decorate():
 				return result
 			return wrapper
 
+		def reverse_wrapper(self, fn):
+			""" Wrapper for updating gradients in reverse pass. """
+			@wraps(fn)
+			def wrapper(self):
+				# Check that we've received all the dependencies we need
+				if not self.ready_to_reverse():
+					return
+
+				# We need to have done first sweep before reverse, assume values exist
+				values = [child.value() for child in self.children]
+				grad_value = self._grad_value
+				results = fn(self, values, grad_value)
+
+				# Need to propagate results (functions need to return same # of results as children)
+
+				for idx in range(len(results)):
+					self.children[idx].add_grad_contribution(results[idx])
+					self.children[idx].reverse()
+
+				return results
+			return wrapper
+
 class Node():
 	""" Class Node
 
@@ -79,6 +95,11 @@ class Node():
 
 		# Name of type of node
 		self.type = 'None'
+
+		# Reverse mode
+		self._grad_value = 0
+		self._cur_grad_count = 0
+		self._grad_count = 0
 
 	@classmethod
 	def make_constant(cls, value):
@@ -158,7 +179,7 @@ class Node():
 	def __eq__(self,other):
 		return self.value() == other.value() and self.derivative() == other.derivative()
 
-	def __neq__(self, other):
+	def __ne__(self, other):
 		return not self == other
 
 	def __hash__(self):
@@ -224,6 +245,7 @@ class Node():
 		self.zero_vector_derivative(input_dict)
 
 	def zero_vector_derivative(self, input_dict):
+		""" Reset vectors of derivatives recursively in children """
 		if type(self) != Variable:
 			for key, value in input_dict.items():
 				if isinstance(value, np.ndarray) and key in self._variables:
@@ -255,6 +277,37 @@ class Node():
 			else:
 				self._variables[var].set_derivative(1)
 			yield var
+	
+	""" REVERSE MODE
+
+	Helper functions for properly doing the reverse mode
+	of automatic differentiation. These include keeping track
+	of whether or not any node is ready to compute its contributions
+	to its children, and managing these contributions.
+	"""
+
+	def zero_grad_values(self):
+		""" Reset all partial contributions for reverse pass """
+		self._grad_value = 0
+		self._cur_grad_count = 0
+		self._grad_count = 0
+
+		for child in self.children:
+			child.zero_grad_values()
+
+	def set_grad_count(self):
+		""" Calculate dependency counts """
+		self._grad_count += 1
+		for child in self.children:
+			child.set_grad_count()
+
+	def ready_to_reverse(self):
+		return (self._cur_grad_count == self._grad_count)
+
+	def add_grad_contribution(self, value):
+		# Keep track of addition contribution
+		self._cur_grad_count += 1
+		self._grad_value += value
 
 	""" COMPUTATION
 
@@ -282,8 +335,24 @@ class Node():
 		self.set_variables(input_dict)
 		self.eval()
 
-		for var in self.iterate_seeds():
-			self.diff()
+		# Compute derivatives based on mode
+
+		if settings.current_mode() == "forward":
+			for var in self.iterate_seeds():
+				self.diff()
+		else: 
+			# Reverse mode
+			self.zero_grad_values()
+			# Get proper contribution counts
+			self.set_grad_count()
+			# Seeding output, current node by 1
+			self.add_grad_contribution(1)
+			self.reverse()
+
+			# Now set the results
+			self._derivative = {}
+			for key, var in self._variables.items():
+				self._derivative[key] = var._grad_value
 
 		return self
 
@@ -295,6 +364,11 @@ class Node():
 	# Uncomment when overriding:
 	# @node_decorate('differentiate')
 	def diff(self, values, diffs):
+		raise NotImplementedError
+
+	# Uncomment when overriding:
+	# @node_decorate('reverse')
+	def reverse(self, values, grad_value):
 		raise NotImplementedError
 
 	def get_comp_graph(self):
@@ -378,6 +452,11 @@ class Variable(Node):
 	def __call__(self, *args, **kwargs):
 		return self.compute(*args, **kwargs)
 
+	# Reverse mode doesn't need to do anything, no children
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		return ()
+
 
 class Constant(Node):
 	""" Node representing a constant.
@@ -400,6 +479,11 @@ class Constant(Node):
 	def diff(self):
 		return self.derivative()
 
+	# Reverse mode doesn't need to do anything, no children
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		return ()
+
 
 class Addition(Node):
 
@@ -417,6 +501,10 @@ class Addition(Node):
 		left, right = diffs
 		return np.add(left, right)
 
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		return (grad_value, grad_value)
 
 class Negation(Node):
 
@@ -431,6 +519,11 @@ class Negation(Node):
 	@node_decorate('differentiate')
 	def diff(self, values, diffs):
 		return -1*np.array(diffs[0])
+
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		return (-1*np.array(grad_value),)
 
 class Subtraction(Node):
 
@@ -447,6 +540,11 @@ class Subtraction(Node):
 	def diff(self, values, diffs):
 		return np.subtract(diffs[0], diffs[1])
 
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		return (grad_value, -grad_value)
+
 
 class Multiplication(Node):
 
@@ -462,6 +560,13 @@ class Multiplication(Node):
 	def diff(self, values, diffs):
 		return np.multiply(diffs[0], values[1]) + np.multiply(diffs[1], values[0])
 
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		left, right = values
+		left_out = np.multiply(right, grad_value)
+		right_out = np.multiply(left, grad_value)
+		return (left_out, right_out)
 
 class Division(Node):
 
@@ -482,6 +587,14 @@ class Division(Node):
 		if denom == 0:
 			raise ZeroDivisionError('Division by zero.')
 		return np.divide(num, denom)
+
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		numer, denom = values
+		numer_out = np.divide(grad_value, denom)
+		denom_out = -1*np.divide(np.multiply(grad_value,numer), np.power(denom, 2))
+		return (numer_out, denom_out)
 
 class Power(Node):
 
@@ -517,3 +630,12 @@ class Power(Node):
 		term2 = np.multiply(coef, powered)
 
 		return term1+term2
+
+	# Reverse mode
+	@node_decorate('reverse')
+	def reverse(self, values, grad_value):
+		base, exp = values
+		base_out = np.multiply(np.multiply(exp, np.power(base, exp-1)), grad_value)
+		exp_out = np.multiply(np.multiply(np.log(base), np.power(base, exp)), grad_value)
+
+		return (base_out, exp_out)
