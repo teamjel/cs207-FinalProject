@@ -70,7 +70,6 @@ class Node():
 	Base Node implementation.
 	"""
 
-	id = 0
 	def __init__(self):
 		self._value = None
 		self._derivative = {}
@@ -80,8 +79,6 @@ class Node():
 
 		# Name of type of node
 		self.type = 'None'
-		self.id = Node.id
-		Node.id += 1
 
 	@classmethod
 	def make_constant(cls, value):

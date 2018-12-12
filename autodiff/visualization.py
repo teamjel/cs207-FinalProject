@@ -26,7 +26,7 @@ class CompGraph(Digraph):
 
     @staticmethod
     def get_id(node):
-        return str(node.id)
+        return str(id(node))
 
     @staticmethod
     def get_label(node):
@@ -91,17 +91,22 @@ class CompTable():
         self.variables = []
 
     def add_nodes(self, top_node):
-        if top_node.id not in self.added_nodes:
-            self.added_nodes.add(top_node.id)
-            self.nodes.append(top_node)
+        if id(top_node) not in self.added_nodes:
+            self.added_nodes.add(id(top_node))
+            self.nodes = [top_node] + self.nodes
             # Keep track of all variables
             if top_node.type == "Variable":
                 self.variables.append(top_node.name)
             for child in set(top_node.children):
                 self.add_nodes(child)
-        self.nodes.sort(key = lambda x: x.id)
+
+    def reorder_nodes(self):
+        for node in self.nodes:
+            if node.type == "Variable":
+                self.nodes.insert(0, self.nodes.pop(self.nodes.index(node)))
 
     def build_rows(self):
+        self.reorder_nodes()
         for idx, node in enumerate(self.nodes):
             row = {}
             # Set Trace
@@ -114,7 +119,7 @@ class CompTable():
             else:
                 children = []
                 for child in node.children:
-                    child_node = list(filter(lambda node: node.id == child.id,self.nodes))[0]
+                    child_node = list(filter(lambda node: id(node) == id(child),self.nodes))[0]
                     try:
                         index_node = self.nodes.index(child_node)
                         c = f"x_{index_node + 1}"
@@ -142,7 +147,6 @@ class CompTable():
                         row[f"Grad {variable} value"] = round(node.derivative()[variable],2)
                     except:
                         row[f"Grad {variable} value"] = 0
-
 
     def build_table(self,top_node):
         self.add_nodes(top_node)
