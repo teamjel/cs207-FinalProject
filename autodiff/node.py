@@ -185,6 +185,8 @@ class Node():
 		if isinstance(value, numbers.Number):
 			self._derivative[self._cur_var] = value
 		else:
+			# if self._cur_var not in self._derivative:
+			# 	self._derivative[self._cur_var] = np.zeros(value.size)
 			self._derivative[self._cur_var][var.var_idx] = value[var.var_idx]
 
 	def set_children(self, *children):
@@ -217,8 +219,18 @@ class Node():
 		for key, value in input_dict.items():
 			self._variables[key].set_value(value)
 
-			if isinstance(value, np.ndarray):
-				self._derivative[key] = np.zeros(value.size)
+			# if isinstance(value, np.ndarray):
+			# 	self._derivative[key] = np.zeros(value.size)
+		self.zero_vector_derivative(input_dict)
+
+	def zero_vector_derivative(self, input_dict):
+		if type(self) != Variable:
+			for key, value in input_dict.items():
+				if isinstance(value, np.ndarray) and key in self._variables:
+					self._derivative[key] = np.zeros(value.size)
+
+			for node in self.children:
+				node.zero_vector_derivative(input_dict)
 
 	def update_cur_var(self):
 		for v in self._variables:
@@ -336,6 +348,7 @@ class Variable(Node):
 
 	# On value set, needs to set the derivative
 	def set_value(self, value):
+		self._value = None
 		if isinstance(value, np.ndarray):
 			self.set_derivative(np.zeros(value.size))
 		super().set_value(value)
@@ -347,6 +360,23 @@ class Variable(Node):
 			self.var_idx = i
 			self._derivative[i] = 1
 			yield i
+
+	# # Override calling the variable
+	def compute(self, *args, **kwargs):
+		if len(args) == 0:
+			input_dict = kwargs
+		elif len(args) == 1:
+			input_dict = args[0]
+
+		if self.name not in input_dict:
+			raise TypeError('Input not recognized.')
+
+		self.set_value(input_dict[self.name])
+		self.set_derivative(1);
+		return self
+
+	def __call__(self, *args, **kwargs):
+		return self.compute(*args, **kwargs)
 
 
 class Constant(Node):
