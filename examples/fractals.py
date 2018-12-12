@@ -1,12 +1,35 @@
 import numpy as np
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+
+''''
+Creates a fractal image
+
+Returns a fractal image
+
+Parameters:
+f = autodiff function
+area = ((x_min, x_max), (y_min, y_max))
+size = (x_size, y_size)
+diff_method="AD" or "Finite"
+e = Epsilon of iterations
+max_iters = Maximum number of iterations
+alpha = Iterative tuning parameter
+'''
+def create_fractal(f, size, area, diff_method="AD", e=1e-3, max_iters=50, alpha=1,):
+    grid_root, grid_iter, roots = fractal_grid(f, size, area, "Finite", e, max_iters, alpha)
+    image = grid_to_image(grid_root,grid_iter,roots)
+    return image
+
+
 # Returns (root, iterations) if converges
 def newtons_method(f, z, diff_method = "AD", e=1e-3, max_iters=50, alpha=1):
+    f(x=z)
     for i in range(max_iters):
-        f(x=z)
-        if diff_method == "AD":
-            derivative = f.derivative()["x"]
-        elif diff_method == "Finite":
+        if diff_method == "Finite":
             derivative = finite_difference(f,z)
+        else:
+            derivative =f.derivative()["x"]
         zplus = z - alpha*f.value()/derivative
         # Checks for convergence
         if abs(zplus - z) < e:
@@ -81,3 +104,18 @@ def grid_to_image(grid_root, grid_iter, roots):
 #         img[grid_root==i+1] = idxs[i]
 
     return img
+
+'''
+Function that saves frame into a video file
+'''
+def save_video(frames, filename, display=True):
+    fig = plt.figure()
+    ims = []
+    for i in range(len(frames)):
+        im = plt.imshow(frames[i], animated=True)
+        ims.append([im])
+
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True)
+    if display:
+        plt.show()
+    ani.save(filename)
