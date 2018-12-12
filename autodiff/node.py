@@ -158,7 +158,7 @@ class Node():
 	def __eq__(self,other):
 		return self.value() == other.value() and self.derivative() == other.derivative()
 
-	def __neq__(self, other):
+	def __ne__(self, other):
 		return not self == other
 
 	def __hash__(self):
