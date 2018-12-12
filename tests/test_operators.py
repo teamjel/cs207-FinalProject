@@ -380,7 +380,7 @@ def test_composition_errors():
 """ Reverse mode tests. """
 
 # Test unary operators: negation, log, sin, cos, tan, power, exponential.
-def test_unary_result():
+def test_reverse_unary_result():
     settings.set_mode("reverse")
     # function: a, derivative: 1
     a = Variable("a")
@@ -449,7 +449,7 @@ def test_unary_result():
     assert(round(logisticp.derivative()["p"], 2) == 0.24)
 
 # Test binary operators: addition, subtraction, multiplication, division, logarithm, power
-def test_binary_result():
+def test_reverse_binary_result():
     settings.set_mode("reverse")
     a = Variable("a")
     b = Variable("b")
