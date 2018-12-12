@@ -1,7 +1,7 @@
 """ Settings submodule """
 
 # Forward or reverse modes, options are "reverse" or "forward"
-__DEFAULT_AD_MODE__ = "reverse"
+__DEFAULT_AD_MODE__ = "forward"
 
 class Settings():
 	def __init__(self):
